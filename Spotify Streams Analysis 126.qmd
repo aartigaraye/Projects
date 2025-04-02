@@ -1,0 +1,256 @@
+---
+title: 'Final Project - Step 2 (20 Points)'
+subtitle: "PSTAT126: Regression Analysis" 
+
+author:
+  - name: "Ali Abuzaid"
+    affiliations:
+      - name: "Fall 2024"
+affiliation-title: "Quarter"
+format: 
+ pdf: 
+    latex_engine: xelatex
+    geometry: "a4paper, margin=0.5in, landscape"
+    code-fold: true
+    code-line-numbers: true
+    code-copy: true
+    code-tools: true
+    self-contained: true
+    toc: false
+    toc-location: left
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message =  FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(error =  FALSE)
+bfcolor <- function(x, color) {
+  if (knitr::is_latex_output()) {
+    sprintf("\\textcolor{%s}{\\textbf{%s}}", color, x)
+  } else if (knitr::is_html_output()) {
+    sprintf("<span style='color: %s;'><b>%s</b></span>", color, x)
+  } else x
+}
+```
+
+:::: callout
+::: {style="text-align: center"}
+[ **STUDENT NAME** ]{style="color: blue;"}
+:::
+
+-   AARTI GARAYE (aartigaraye)
+-   MOIRA KEATING (mskeating)
+-   YIWEN XIAO (yiwenxiao)
+-   SYLVIA LI (sylvia_li)
+-   SIDDHARTH SINGH (siddharthsingh)
+::::
+
+::: callout-caution
+## Due Date
+
+The deadline for this step is **November 8, 2024**.
+:::
+
+::: callout-tip
+# Instructions
+
+The goal of this step is to develop clear research questions and hypotheses based on your selected dataset and to conduct a thorough Exploratory Data Analysis (EDA). This process will set the foundation for your later analysis and insights.
+:::
+
+# Step 2: Research Questions, Hypotheses, and Exploratory Data Analysis (EDA)
+
+## Research Objective
+
+How can artists use our model to strategically structure their music and plan the release dates to maximize their streams?
+
+## Research Questions
+
+**Question 1**
+
+How does the number of playlists a song is in influence the number of streams?
+
+**Question 2**
+
+Out of acousticness %, number of playlists, bpm, spotify charts, which variables are statistically significant for our model to predict the number of streams?
+
+**Question 3**
+
+How does release month impact the number of streams?
+
+## Hypotheses
+
+**Hypothesis 1**
+
+Null Hypothesis: $H_0$: $\beta_1 = 0$ The number of playlists a song is in (predictor variable) and the number of streams (response variable) have no linear relationship.
+
+Alternate Hypothesis: $H_A$: $\beta_1 \neq 0$ The number of playlists a song is in (predictor variable) and the number of streams (response variable) have some linear relationship.
+
+**Hypothesis 2**
+
+Null Hypothesis: $H_0$: $\beta_1 = 0, \beta_2 = 0, ... , \beta_p = 0$ None of the variables listed have a statistical impact on the number of streams.
+
+Alternate Hypothesis: $H_A$: $\beta_1 \neq 0, \beta_2 \neq 0, ... , \beta_p \neq 0$ At least one of the variables listed above have a statistical impact on the number of streams.
+
+**Hypothesis 3**
+
+Null Hypothesis: $H_0$: $\beta_1 = 0, \beta_2 = 0, ... , \beta_p = 0$ None of the months are statistically significant to impact the number of streams.
+
+Alternate Hypothesis: $H_A$: $\beta_1 \neq 0, \beta_2 \neq 0, ... , \beta_p \neq 0$ At least one of the months are statistically significant to impact the number of streams.
+
+## Exploratory Data Analysis (EDA)
+
+### Data Cleaning
+
+The variables we chose were the number of playlists, charts, bpm, and acousticness percentage. The reason we chose to come up with hypothesis tests for these variables is because we thought that they would have the most impact on the number of streams. We thought that these variables would have the strongest correlation, which would make it easier for us to make linear regression models. The graphs below shocked us.
+
+We cleaned the data set with the help of R and excel. First using R, we omitted all of the rows that had at least one NA or empty value. We then used the set.seed function to randomly select 500 tracks so that our data would not be skewed. Then, we exported the dataset into Excel and deleted all of the columns that we unnecessary and redundant. Once we did that, we converted the track names to index variables because not all of them were in English, which gave us a lot of discrepancies. This also helps to reduce biases by looking at artists track and name.
+
+In our experiment, we will not be removing outliers because we are unaware of the circumstances making it unjustifiable to just omit them. Doing so would change the summary statistics significantly, which can potentially affect the central measures of tendency and the spread of the data. This would make it harder to come up with the linear regression models because our variables might be less correlated with each other without the extreme values.
+
+### Descriptive Statistics
+
+```{r, results='hide'}
+library(readxl)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+spotify_data <- read_excel("/Users/aarti/Downloads/new_Spotify_data.xls")
+spotify_data$streams <- as.integer(spotify_data$streams)
+spotify_data$released_month <- as.character(spotify_data$released_month)
+summary(spotify_data)
+```
+
+```{r,echo=FALSE}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+table1 <- spotify_data[, 1:8]
+
+kable(summary(table1)) %>%
+  kable_styling(latex_options = "scale_down")
+```
+
+```{r fig.cap="By looking at the summary of the key variables, we can see that bpm ranges from 65 to 204 with the median being at around 120 and mean being at 122. The in_spotify_playlist variable is how many Spotify playlists the track is in. These values range from 31 to 51,979, with the median being at 2,180, but the mean being at 5,018, which means that there are a lot of extremes closer to the maximum. Streams range from 2,762 to 2,123,000,000 with the median being at 256,500,000 and mean being at 436,900,000. The danceability % variable tells us the suitability of the song for dancing, and it ranges from 23% to 95%, with the median being at 70% and mean being at 67.47%. The valence % tell us the positivity of the song’s musical content, and this ranges from 4% to 97% with the median being at 52% and mean being at 51.66%. Energy % tells us the perceived energy level of the song, which ranges from 14% to 97% with the median being 65% and mean being 64%. The acousticness % measures the acoustic sound presence in the song, and in this case, acousticness % 0% to 93%, with the median being 19% and mean being 27.55%, telling us that this variable’s data is slightly skewed to the right.", echo=FALSE}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+table1 <- spotify_data[, 9:17]
+
+kable(summary(table1)) %>%
+  kable_styling(latex_options = "scale_down")
+```
+
+```{r, fig.cap="Side by side boxplot of streams every month. We can see some outliers in them. January has the highest median whereas June has the lowest median number of streams."}
+library(ggplot2)
+
+ggplot(data = spotify_data, mapping = aes(x=factor(released_month, levels=as.character(1:12)), y=streams)) + 
+  geom_boxplot() +
+  theme_minimal() +
+  xlab("Months") + 
+  ggtitle("Boxplot of streams for every month")
+```
+
+### Data Visualization
+
+```{r fig.cap="Scatterplot matrix showing relationships between streams, BPM, artist count, acousticness percentage, Spotify charts, and Spotify playlists. Insights: On average, **streams** increase as being **in_spotify_playlists** increases but there is variation. The relationships between all pairs of predictors appear to be very weak.", fig.width=8, fig.height=6, echo=FALSE}
+par(mar = c(6, 4, 5, 2) + 0.1)
+s <- spotify_data[, c("streams", "bpm", "in_spotify_charts", "in_spotify_playlists","acousticness_%")]
+pairs(s, 
+      main = "Figure X: Scatterplot Matrix Comparing Streams and Predictor Variables with Regression Line",
+      cex.main = 0.8,
+      panel = function(x, y) {
+        points(x, y)
+        abline(lm(y ~ x), col = "blue") 
+      })
+```
+
+```{r fig.show='hold', fig.cap="The positive relationship between **streams** and **in_spotify_playlists** suggests that being in more playlists and high streams are closely related, with the most notable correlation. **Acousticness_%** and **bpm** show very weak correlations to streams and **in_spotify_charts** shows a positive correlation but it is still quite weak. There appears to be a somewhat negative correlation between **released_year** and number of streams but it's still relatively weak.", fig.width=6, fig.height=4, , echo=FALSE}
+library(ggplot2)
+library(reshape2)
+library(alr4)
+
+data(spotify_data)
+
+f <- spotify_data[, c("bpm", "in_spotify_playlists", "in_spotify_charts", "released_month", "released_year", "danceability_%", "streams")]
+
+# Convert any non-numeric columns to numeric
+f[] <- lapply(f, function(x) if(is.factor(x) || is.character(x)) as.numeric(as.character(x)) else x)
+
+cor_matrix <- cor(f, use = "complete.obs")
+
+# Melt the correlation matrix for ggplot
+melted_cor_matrix <- melt(cor_matrix)
+
+# Plot heatmap using ggplot2 with correlation coefficients
+ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
+geom_tile() +
+geom_text(aes(label = sprintf("%.2f", value)), color = "black", size = 5) +
+scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+midpoint = 0, limit = c(-1, 1), name="Correlation") +
+theme_minimal() +
+theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+labs(title = "Figure 2: Correlation Heatmap of Spotify Stream Variables ",
+x = "Variables",
+y = "Variables")
+```
+
+```{r fig.show = "hold", out.width  =  "50%", fig.cap = 'A histogram of acousticness % reveals a distribution that is not normal and skewed right. This means that majority of the songs have 0% acousticness.', echo=FALSE}
+ggplot(spotify_data, aes(x=`acousticness_%`)) + geom_histogram(bins=30) + theme_minimal()
+```
+
+```{r fig.show = "hold", out.width  =  "50%", fig.cap = 'A histogram of valence % reveals a roughly normal distribution with the mean centered around 50% and the tails towards 0 and 100%.', echo=FALSE}
+ggplot(spotify_data, aes(x=`valence_%`)) + geom_histogram(bins=30) + theme_minimal()
+```
+
+```{r fig.show='hold', out.width="50%", fig.cap="The scatter plot shows a moderately strong positive relationship, as In Spotify Playlist increases, Streams increases. The variance increases as In Spotify Playlist increases, and there are a few identifiable outliers.", echo=FALSE}
+library(tidyverse)
+library(MASS)
+library(ggplot2)
+library(readxl)
+ggplot(data = spotify_data, aes(x = spotify_data$'in_spotify_playlists', y = as.numeric(spotify_data$'streams'))) + geom_point() + xlab("In Spotify Playlist") + ylab("Streams") + labs(title = "Streams vs. In Spotify Playlist", width=80) + geom_smooth(method='lm') + theme_minimal()
+```
+
+```{r fig.show='hold', out.width="50%", fig.cap="We expected a positive linear relatinship, but there doesn't seem to be a strong linear relationship between BPM and Streams, and no visible pattern is observed.The variance is large, making it difficult to identify outliers.", echo=FALSE}
+ggplot(data = spotify_data, aes(x = spotify_data$'bpm', y = as.numeric(spotify_data$'streams'))) + geom_point() + xlab("BPM") + ylab("Streams") + labs(title = "Streams vs. BPM", width=80) + geom_smooth(method='lm') + theme_minimal()
+```
+
+### Feature Relationships
+
+From the above graphs of different scatterplots and heatmaps, we can see that the strongest positive correlation is between number of playlists a song is in and the number of streams it has. So our initial analysis tells us the the number of playlists a song is in has some statistical significance in determining the number of streams. The heatmap also suggests a negative correlation between the release year and streams.
+
+### Distribution Comparisons
+
+```{r fig.cap="It appears that acousticness, playlists, charts, and streams exhibit a right-skewed distribution, while BPM and valence follow a more normal distribution.", echo=FALSE}
+spotify_long <- spotify_data[, c("acousticness_%", "valence_%", "bpm", "in_spotify_playlists", "in_spotify_charts", "streams")] %>%
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "value")
+
+ggplot(spotify_long, aes(x = value)) +
+  geom_histogram(bins = 30) + 
+  theme_minimal() +
+  facet_wrap(~ variable, scales = "free_x") +
+  ylim(0, 60) +
+  labs(x = "Percentage", y = "Count", title = "Histograms of Acousticness and Valence")
+```
+
+### Skewness and Kurtosis
+
+```{r, fig.cap="For BPM, the distribution has a skewedness of 0.445 and a kurtosis of -0.448. These values reflect a mostly symmetrical distribution that is close to normal in terms of being not too flat or peaked. More normal distributions have skewedness and kurtosis values close to 0. In contrast, the In_Spotify_Playlists variable has a skewedness of 2.96 and a kurtosis of 9.91. These values fall well outside the commonly accepted values for normal distributions, -2 to 2, reflecting that the distribution for number of Spotify playlists a song is in is not normally distributed. This also applies for the variable In_Spotify_Charts, with a skewedness of 2.45 and a kurtosis of 8.78. The distribution for acousticness % is closer to normal, with a skewedness of 0.874 and a kurtosis of -0.334.", echo=FALSE}
+library(e1071)
+
+s_k_df <- matrix(c(skewness(spotify_data$bpm), kurtosis(spotify_data$bpm),
+                   skewness(spotify_data$`in_spotify_playlists`), kurtosis(spotify_data$`in_spotify_playlists`),
+                   skewness(spotify_data$`in_spotify_charts`), kurtosis(spotify_data$`in_spotify_charts`),
+                   skewness(spotify_data$`acousticness_%`), kurtosis(spotify_data$`acousticness_%`)), nrow = 4, byrow = TRUE)
+
+colnames(s_k_df) <- c("Skewness", "Kurtosis")
+rownames(s_k_df) <- c("bpm", "in_spotify_playlists", "in_spotify_charts", "acounsticness_%")
+
+kable(s_k_df, caption = "Skewness and Kurtosis in different variables")
+```
+
+### Documentation
+
+The dataset is interesting and relevant for analysis because it includes variables with both skewed and normal distributions. In addition, some of those variables exhibit linear correlations, which can provide deeper insights into the relationships between number of streams on Spotify and those musical characteristics. This model will help musicians to know which aspects to focus on and how to best release their work to optimize the streams.
