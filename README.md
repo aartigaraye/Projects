@@ -80,4 +80,9 @@ There exist many such expansions of a stochastic process: if the process is inde
 
 - **Description:**  I am going to present a report/analysis of flights in CA and help visualize it through the maps. The data for this project is spread across several files (which is fairly common in data science projects). This is a mini analytical overview of flights coming in and out of the Santa Barbara airport. All the data has been provided by the Bureau of Transportation Statistics. In this mini-project, we will explore some of the aviation data that the BTS provides. Specifically, we will examine only flights from 2023 that routed through California. The main part of this project will be visualizing this giant chunk of data using different types of graphs.
 
-  
+---
+
+# Restaurant Menu
+
+- **Description:** The Python code is developed to help restaurants with the menu options and for customers to customize their dishes.
+
