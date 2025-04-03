@@ -1,0 +1,16 @@
+---
+:id: 255974083
+:submitters:
+- :name: Sean Reagan
+  :email: screagan@umail.ucsb.edu
+- :name: Daniel Saakian
+  :email: danielsaakian@umail.ucsb.edu
+- :name: Aarti Garaye
+  :email: aartigaraye@umail.ucsb.edu
+:created_at: !ruby/object:ActiveSupport::TimeWithZone
+  utc: 2024-05-31 18:39:53.563983000 Z
+  zone: !ruby/object:ActiveSupport::TimeZone
+    name: America/Los_Angeles
+  time: 2024-05-31 11:39:53.563983000 Z
+:status: processed
+:score: 6.0
