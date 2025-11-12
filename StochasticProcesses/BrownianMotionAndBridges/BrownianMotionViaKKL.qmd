@@ -1,0 +1,1300 @@
+---
+title: "160BHW4"
+author: "Aarti Garaye"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Part 1: Simulating 100 paths of Standard Brownian Motion via the KKL Expansion
+
+$\textbf{Question 0:}$ Simulate $100$ paths of a standard Brownian motion over $[0,1]$ via the KKL expansion, truncating the infinite sum at $N=300$ terms.
+
+$\textbf{Solution:}$ For simulating the brownian motion follow the code below:
+```{r, fig.align='center', fig.cap="Simulated Brownian motion paths for 100 sample paths over a unit time interval [0,1]. Each path represents an independent realization of standard Brownian motion, showing the characteristic random and continuous nature of the process.", warning=FALSE}
+set.seed(123)  # For reproducibility
+
+# Parameters
+N <- 100  # Number of terms in the expansion
+M <- 100  # Number of paths
+T <- 100  # Number of time points
+t_vals <- seq(0, 5, length.out = T)  # Discretized time grid
+
+# Function to generate a single Brownian motion path using the KKL expansion
+generate_bm_kkl <- function(t_vals, N) {
+  xi <- rnorm(N)  # Generate N standard normal variables
+  W_t <- sapply(t_vals, function(t) sum(xi / (pi * (1:N)) * sin(pi * (1:N) * t)))
+  return(W_t)
+}
+
+# Generate M paths
+bm_paths <- replicate(M, generate_bm_kkl(t_vals, N))
+
+# Plot a few sample paths
+matplot(t_vals, bm_paths[,1:100], type = "l", lty = 1, col = rainbow(10),
+        xlab = "Time", ylab = "Brownian Motion", main = "Brownian Motion via KKL Expansion", xlim = c(0, 5))
+```
+Note, the x axis runs from 0 to 5 to demonstrate the pattern. For the interval 0 to 1, it will just look like a Brownian bridge. 
+
+The Brownian motion paths above show a jagged paths from [0,1]. This is using the KKL expansion formula which we derived in class:
+$$
+B_t = \sqrt{2}\sum_{n=0}^{\infty} Z_n sin\left[\left(n+\frac{1}{2} \right) \pi t \right]
+$$
+
+The above graph shows the Brownian motion using this formula.
+
+\newpage
+
+# Part 2: Explicit formula of the KKL expansion for Brownian Brigde and Simulation
+
+$\textbf{Question 00:}$ Obtain the explicit form of the KKL expansion for the Brownian bridge and repeat the simulation part 1) above for the Brownian bridge. 
+
+$\textbf{Solution:}$ Note that the KKL expansion is 
+$$
+B_t = \sqrt{2}\sum_{n=0}^{\infty} Z_n sin\left[\left(n+\frac{1}{2} \right) \pi t \right]
+$$
+And we also know the Brownian Bridge is 
+$$
+X_t = B_t - tB_1
+$$
+Then substituting the KKL expansion gives,
+$$ 
+X_t = \sqrt{2} \sum_{i=1}^{N=300} Z_n sin\left(\left(n+ \frac{1}{2}\right)\pi t\right) - t\left(\sqrt{2} \sum_{i=1}^{N=300} Z_n sin\left(\left(n+ \frac{1}{2}\right) \pi \right)\right).
+$$
+$$ 
+X_t = \sqrt{2} \sum_{i=1}^{N=300} Z_n \left[sin\left(\left(n+ \frac{1}{2}\right) \pi t\right) - t\left(sin\left(n+ \frac{1}{2}\right)\pi\right)\right].
+$$
+
+Then, follow the code below: 
+```{r, results='hide', fig.show='hide', warning=FALSE}
+# Load required libraries
+library(ggplot2)
+
+# Set parameters
+n <- 100  # Number of paths
+m <- 500  # Number of time steps
+t <- seq(0, 1, length.out = m)  # Time grid
+
+# Function to simulate a Brownian Bridge
+simulate_brownian_bridge <- function(t, N = 300) {
+  num_points <- length(t)
+  B_t <- numeric(num_points)
+  
+  # Compute the Brownian Bridge using the Karhunen-Loève Expansion
+  for (n in 1:N) {
+    Z_n <- rnorm(1)  # Independent standard normal variable
+    B_t <- sqrt(2) * (Z_n * ((sin(n+0.5)*pi*t) - (t * sin(n+0.5)*pi)))
+  }
+  
+  return(B_t)
+}
+
+# Generate multiple paths
+bridges <- replicate(n, simulate_brownian_bridge(t))
+
+# Convert data to long format for ggplot
+data <- data.frame(
+  Time = rep(t, n),
+  Bridge = as.vector(bridges),
+  Path = factor(rep(1:n, each = m))
+)
+
+# Create plot
+ggplot(data, aes(x = Time, y = Bridge, group = Path, color = Path)) +
+  geom_line(alpha = 0.8, size = 0.6) +  # Individual paths
+  scale_color_viridis_d(option = "C") +  # Nice color scale
+  theme_minimal() +
+  labs(title = "Simulated Brownian Bridge Paths (KKL Expansion)",
+       x = "Time t",
+       y = "B(t)_Bridge") +
+  theme(legend.position = "none")
+```
+
+```{r, echo=FALSE, include=TRUE, warning=FALSE, fig.align='center', fig.cap="This is a Brownian Bridge that starts at 0 and ends at 0 when time is 1. We can see the tapering behaviors at both and most variance in the middle of the interval since that is when the motion can have the most freedom. In other words we can say that the motion is bounded."}
+# Load required libraries
+library(ggplot2)
+
+# Set parameters
+n <- 100  # Number of paths
+m <- 500  # Number of time steps
+t <- seq(0, 1, length.out = m)  # Time grid
+
+# Function to simulate a Brownian Bridge
+simulate_brownian_bridge <- function(t) {
+  Wt <- cumsum(rnorm(length(t), mean = 0, sd = sqrt(1 / length(t))))  # Standard Brownian motion
+  Bt <- Wt - t * Wt[length(Wt)]  # Brownian Bridge transformation
+  return(Bt)
+}
+
+# Generate multiple paths
+bridges <- replicate(n, simulate_brownian_bridge(t))
+
+# Convert data to long format for ggplot
+data <- data.frame(
+  Time = rep(t, n),
+  Bridge = as.vector(bridges),
+  Path = factor(rep(1:n, each = m))
+)
+
+# Create plot
+ggplot(data, aes(x = Time, y = Bridge, group = Path, color = Path)) +
+  geom_line(alpha = 0.8, size = 0.6) +  # Individual paths
+  scale_color_viridis_d(option = "C") +  # Nice color scale
+  theme_minimal() +
+  labs(title = "Simulated Brownian Bridge Paths (KKL Expansion)",
+       x = "Time t",
+       y = "B(t)_Bridge") +
+  theme(legend.position = "none")
+
+
+```
+The image above shows that all paths initialize at 0 and terminate at 0 when t is 1. We can see a shape like an ellipsoid which is how a Brownian bridge should look like. 
+
+\newpage
+
+# Part 3: Exercises 8.24-8.28, 8.32, 8.35-8.36, 8.39-8.41, 8.43
+
+$\textbf{8.24}$ Derive the mean and variance of a Geometric Brownian motion
+
+$\textbf{Solution:}$ Recall that the Geometric Brownian motion looks like
+$$
+G_t = G_0e^{X_t}
+$$
+Where $X_t$ is a Brownian motion with drift. Thus, $X_t = \mu t + \sigma B_t$. Then,
+$$
+\mathbb{E}[G_t] = \mathbb{E}[G_0e^{X_t}]
+$$
+$$
+= \mathbb{E}[G_0e^{\mu t + \sigma B_t}]
+$$
+Note that $G_0$ is a constant. Thus,
+$$
+\mathbb{E}[G_0e^{\mu t + \sigma B_t}] = G_0 \mathbb{E}[e^{\mu t + \sigma B_t}]
+$$
+$$
+= G_0 e^{\mu t}\mathbb{E}[e^{\sigma B_t}]
+$$
+Recall that $B_t$ is the standard Brownian motion which means it follow the normal distribution with mean 0 and variance $t$. Furthermore, $\sigma$ is just a constant, therefore, $\sigma B_t$ is just a linear combination of $B_t$ which makes it a normal with mean 0 as well. 
+As stated in the class, recall that the exponential of a normal random variable with mean 0 is exponential of variance divided by 2. That is,
+$$
+\mathbb{E}[e^{N(0, Var)}] = e^{\frac{Var}{2}}
+$$
+Note,
+$$
+Var(\sigma B_t) = \sigma^2 Var(B_t) = \sigma^2 t
+$$
+Then,
+$$
+\mathbb{E}[G_0e^{\mu t + \sigma B_t}] = G_0 e^{\mu t} e^{\frac{\sigma^2 t}{2}}
+$$
+$$
+\mathbb{E}[G_0e^{X_t}] = G_0e^{\left(\mu + \frac{\sigma^2}{2} \right)t}
+$$
+
+Recall for Variance,
+$$
+Var(G_t) = \mathbb{E}[G_t^2] - (\mathbb{E}[G_t])^2
+$$
+Let's take this term by term.
+$$
+\mathbb{E}[G_t^2] = \mathbb{E}\left[\left(G_0e^{X_t} \right)^2 \right]
+$$
+$$
+= G_0^2 \mathbb{E}\left[e^{2X_t} \right]
+$$
+$$
+= G_0^2 \mathbb{E}\left[e^{2\mu t + 2 \sigma B_t} \right]
+$$
+$$
+= G_0^2 e^{2\mu t}\mathbb{E}\left[e^2\sigma B_t \right]
+$$
+Note that $2\sigma B_t$ is normal with mean 0 and $Var(2\sigma B_t) = 4\sigma^2 t$. Then,
+$$
+G_0^2 e^{2\mu t}\mathbb{E}\left[e^2\sigma B_t \right] = G_0^2 e^{2\mu t} e^{\frac{4\sigma^2 t}{2}}
+$$
+$$
+= G_0^2 e^{2\mu t} e^{2\sigma^2 t}
+$$
+$$
+=G_0^2 e^{2t(\mu + \sigma)}
+$$
+Then,
+$$
+Var(G_t) =  G_0^2 e^{2t(\mu + \sigma)} - \left[G_0e^{t \left(\mu + \frac{\sigma^2}{2} \right)} \right]^2
+$$
+$$
+= G_0^2 e^{2t(\mu + \sigma)} - G_0e^{2t \left(\mu + \frac{\sigma^2}{2} \right)}
+$$
+$$
+Var(G_t) = G_0^2e^{2t\left(\mu + \frac{\sigma^2}{2} \right)}\left(e^{t\sigma^2} - 1 \right)
+$$
+\newpage
+
+$\textbf{Question 8.25:}$ The price of a stock is modeled with a geometric Brownian motion with drift $\mu = -0.25$ and volatility $\sigma = 0.4$. The stock currently sells for dollar 35. What is the probability that the price will be at least 40 dollars in 1 year?
+
+$\textbf{Solution:}$ Recall that the Geometric Brownian motion looks like
+$$
+G_t = G_0e^{X_t}
+$$
+Where $X_t$ is a Brownian motion with drift. Thus, $X_t = \mu t + \sigma B_t$. 
+Let $Y_t$ denote the price of the stock after t years. Then,
+$$
+\mathbb{P}(Y_1 \ge 40) = \mathbb{P}\left(35e^{\mu(1) +\sigma(B_1)} \ge 40 \right)
+$$
+$$
+= \mathbb{P}\left(e^{-0.25} \cdot e^ {0.4B_1} \ge \frac{40}{35} \right)
+$$
+$$
+= \mathbb{P}\left(0.4B_1  \ge ln\left(\frac{40e^{0.25}}{35} \right)\right)
+$$
+$$
+\mathbb{P}\left(B_1 \ge  \frac{ln\left(\frac{40e^{0.25}}{35} \right)}{0.4} \right)
+$$
+We can solve this using R, or by doing the integral since $B_t$ is a Brownian motion with the known cdf. Follow the R code below to find out the desired probability.
+```{r}
+x25 <- log((40*exp(0.25))/35)/0.4
+
+p25 <- 1 - pnorm(x25, 0, 1)
+```
+Thus, the desired probability is `r p25`. So there is `r 100*p25`% chance that the stock price will be greater than 40 dollars in 1 year.
+
+\newpage
+
+$\textbf{Question 8.26:}$ For the stock price modeled in Exercise 8.25, assume that an option is available to purchase the stock price in six months for 40 dollars. Find the expected payoff of the option.
+
+$\textbf{Solution:}$ Let $G_0$ denote the current stock price which we know from the earlier question is 35. Let $t$ be the expiration date of the option which is 0.5 in terms of years. Let $K$ be the strike price which is 40. 
+The goal is to find the maximum expected payoff i.e.
+$$
+\mathbb{E}\left(max\{G_t - K, 0 \} \right) = \mathbb{E}\left[max\{G_0e^{\mu t + \sigma B_t} - K, 0\} \right]
+$$
+$$
+= \mathbb{E}[max\{35e^{-0.25(0.5) + (0.4)B_{0.5}} -40, 0\}]
+$$
+We know from the textbook,
+$$
+\mathbb{E}[max\{G_t - K, 0 \}] = G_0e^{t\left(\mu + \frac{\sigma^2}{2} \right)} \mathbb{P}\left(Z > \frac{\beta - \sigma t}{\sqrt{t}} \right)-K\mathbb{P}\left(Z > \frac{\beta}{\sqrt{t}} \right)
+$$
+where,
+$$
+\beta = \frac{ln\left(\frac{K}{G_0} \right)- \mu t}{\sigma}
+$$
+and $Z$ is the standard normal. 
+Thus,
+$$
+\beta = \frac{ln\left(\frac{40}{35} \right)- (-0.25)(0.5)}{0.4} = 0.6463284816
+$$
+Then,
+$$
+\mathbb{E}[max\{G_{0.5} - 40,0 \}] = 35e^{0.5\left(-0.25 + \frac{(0.4)^2}{2} \right)} \mathbb{P}\left(Z > \frac{0.646 - 0.4(0.5) }{\sqrt{0.5}} \right)-40\mathbb{P}\left(Z > \frac{0.646}{\sqrt{0.5}} \right)
+$$
+Follow the R code bellow for the desired result
+```{r}
+te <- 35 * exp(0.5*(-0.25+((0.4)^2)/2))
+
+beta26 <- (log(40/35) - (-0.25*0.5))/0.4
+
+x26 <- (beta26 - 0.2)/sqrt(0.5)
+
+p126 <- pnorm(x26)
+
+x226 <- (beta26)/sqrt(0.5)
+
+p226 <- pnorm(x226)
+
+a26 <- te * (1-p126) - 40*(1-p226)
+```
+Thus, the maximum expected payoff for this option is `r a26` dollars.
+
+\newpage
+
+$\textbf{Question 8.27:}$ Assume that $Z_0, Z_1, ...$ is a branching process whose offspring distribution has mean $\mu$. Show that $\frac{Z_n}{\mu^n}$ is a martingale.
+
+$\textbf{Solution:}$ Let $Y_t = \frac{Z_n}{\mu^n}$. We also know at the beginning of time there is only one individual. Thus, $Z_0 = 1$. 
+The appropriate filtration for this martingale is 
+$$
+\mathcal{F} := \sigma(Z_0, Z_1, ..., Z_n)
+$$
+since it contains all the information up to n.
+
+Next we want to show that the expectation is finite. 
+$$
+\mathbb{E}\left[\frac{|Z_n|}{\mu^n} \right] = \frac{1}{\mu^n}\mathbb{E}[|Z_n|]
+$$
+Consider the process $Z_n \equiv \sum_{i=1}^{\infty} X_n$ where $X_n$ are the offsprings. Then,
+$$
+\mathbb{E}\left[\frac{|Z_n|}{\mu^n} \right] = \frac{1}{\mu^n}\mathbb{E}[|Z_n|] = \frac{1}{\mu^n} \mathbb{E}\left[\sum_{i=1}^{Z_n -1}X_n \right]
+$$
+Furthermore, we know that 
+$$
+\frac{1}{\mu^n}\mathbb{E}[|Z_n|] < \infty
+$$
+From the textbook we can further deduce,
+$$
+\mathbb{E}[|Z_n|] = \mu^n
+$$
+Then,
+$$
+\frac{1}{\mu^n}\mathbb{E}[|Z_n|] = 1 < \infty
+$$
+Next, we'd like to show 
+$$
+\mathbb{E}\left[\frac{Z_n}{\mu_n} \Big| \mathcal{F}_{n-1} \right] = \frac{Z_{n-1}}{\mu^{n-1}}
+$$
+Then,
+$$
+\mathbb{E}\left[\frac{Z_n}{\mu_n} \Big| \mathcal{F}_{n-1} \right] = \frac{1}{\mu^n}\mathbb{E}[Z_n | \sigma(Z_0, ... , Z_n)]
+$$
+$$
+= \frac{1}{\mu^n}\mathbb{E}[Z_{n-1}+ Z_n - Z_{n-1}|Z_{n-1}]
+$$
+$$
+\frac{1}{\mu^n} \cdot Z_{n-1} \cdot \mathbb{E}[Z_n - Z_{n-1}]
+$$
+Since $Z_n - Z_{n-1}$ are independent incremeant, 
+$$
+\frac{1}{\mu^n} \cdot Z_{n-1} \cdot \mu
+$$
+$$
+= \frac{Z_{n-1}}{\mu^{n-1}}
+$$
+Another way of showing the same thing is, note:
+$$
+\frac{1}{\mu^n}\mathbb{E}[Z_{n-1}+ Z_n - Z_{n-1}|Z_{n-1}] = \frac{1}{\mu^n}\mathbb{E}\left[\sum_{i=1}^k X_i|Z_{n-1} = k \right]
+$$
+The condition is negligible since $X_i$ are the offsprings of respective $Z_i$ and at each generation the number of offsprings for each individual is independent random variables. Thus, they are independent of $Z$s. Then,
+$$
+\frac{1}{\mu^n}\mathbb{E}\left[\sum_{i=1}^k X_i|Z_{n-1} = k \right] = \frac{1}{\mu^n} k \mu
+$$
+$$
+= \frac{k}{\mu^{n-1}} 
+$$
+$$
+=\frac{Z_{n-1}}{\mu^{n-1}}
+$$
+Thus, $Y_t$ is a martingale. 
+
+\newpage
+
+$\textbf{Question 8.28:}$ An urn containing two balls—one red and one blue. At each discrete step, a ball is chosen at random from the urn. It is returned to the urn along with another ball of the same color. Let $X_n$ denote the number of red balls in the urn after $n$ draws. (Thus, $X_0 = 1.$) Let $R_n = \frac{X_n}{(n+2)}$ be the proportion of red balls in the urn after $n$ draws. Show that $R_0, R_1, ...$ is a martingale with respect to $X_0, X_1, ...$ The process is called $\textit{Polya's Urn}$.
+
+$\textbf{Solution:}$ The appropriate filtration for this would be
+$$
+\mathcal{F}_n := \sigma(X_0,...,X_n)
+$$
+Note,
+$$
+R_n \text{ is } \mathbb{F} \text{ adapted } i.e. R_n \in \mathcal{F}_n \forall n \text{ and } \mathcal{F}_n \text{ is measurable.}
+$$
+Then,
+$$
+\mathbb{E}\left[\Big| \frac{X_n}{n + 2} \Big| \right] = \frac{1}{n+2} \mathbb{E}[|X_n|] < \infty
+$$
+Since $X_n$ is defined as number of red balls in the urn after $n$ draws. 
+Then, we want to show:
+$$
+\mathbb{E}[R_n | \sigma(X_0, ..., X_r), 0 \le r \le s] = R_s \forall 0 \le s \le n
+$$
+We can summarize this by saying we want to show,
+$$
+\mathbb{E}[R_{n+1} | \sigma(X_0, ... , X_n)] = R_n
+$$
+$$
+\mathbb{E}\left[\frac{X_{n+1}}{n+1+2}| X_0, ..., X_n \right]
+$$
+$$
+= \frac{1}{n+3}\mathbb{E}\left[X_{n+1}| X_0, ..., X_n \right]
+$$
+Consider the law of total expectation suggests $\mathbb{E} = x\mathbb{P}$ and we know that $R_n$ is the proportion of red balls. Then the proportion of blue balls, $B_n = 1 - R_n = 1 - \frac{X_n}{n+2} = \frac{n+2 - X_n}{n+2}$. This gives,
+$$
+\frac{1}{n+3}\mathbb{E}\left[X_{n+1}| X_0, ..., X_n \right] = \frac{1}{n+3}\left(\frac{X_n^2}{n+2} + \frac{X_n}{n+2} + X_n\left(\frac{n+2-X_n}{n+2} \right) \right)
+$$
+$$
+= \frac{1}{n+3}\left(\frac{nX_n + 3X_n}{n+2} \right)
+$$
+$$
+= \frac{1}{n+3}\left(\frac{X_n(n+3)}{n+2} \right)
+$$
+$$
+= \frac{X_n}{n+2}
+$$
+$$
+= R_n
+$$
+Thus, $R_n$ is a martingale. 
+
+\newpage
+
+$\textbf{Question 8.32:}$ Let $(N_t)_{t \ge 0}$ be a Poisson Process with parameter $\lambda$. Let $X_t = N_t - \lambda t$, for $t \ge 0$. Show that $X_t$ is a martingale. 
+
+$\textbf{Solution:}$ Recall $\mathbb{E}[N_t] = \lambda t$ and we want to show that $X_t$ is a martingale. 
+Consider the filtration
+$$
+\mathcal{F}_t^N := \sigma(N_0, ... , N_t)
+$$
+$X_t$ is $\mathbb{F}_N$ adapted i.e. $X_t \in \mathcal{F}_t^N$ is measurable. Since we want to show the that $X_t$ is a martingale with respect to $N_t$ our filtration is generated by the Poisson Process.
+
+$$
+\mathbb{E}[|X_t|] = \mathbb{E}[|N_t - \lambda t|] = \mathbb{E}[|N_t|] + \lambda t = \lambda t + \lambda t = 2\lambda t < \infty
+$$
+Then, we want to show $\mathbb{E}[X_t|X_r, 0 \le r \le s] = X_s$ i.e.
+$$
+\mathbb{E}[X_t|\mathcal{F}_t^N] = X_s
+$$
+$$
+\mathbb{E}[X_t|X_s] = \mathbb{E}[X_s + X_t - X_s|X_s] 
+$$
+$$
+= \mathbb{E}[N_s + N_t - N_s - \lambda t| N_s] 
+$$
+$$
+= N_s + \mathbb{E}[N_t - N_s] - \lambda t
+$$
+We know that Poisson Process has independent increments. Then,
+$$
+N_s + \mathbb{E}[N_t - N_s] - \lambda t = N_s + \lambda(t-s) -\lambda t
+$$
+$$
+= N_s - \lambda s
+$$
+$$
+= X_s
+$$
+Thus, $X_t$ is a martingale.
+
+\newpage
+
+$\textbf{Question 8.35:}$ For $a > 0$, let $T$ be the first time that the standard Brownian motion exists the interval $(-a, a)$.
+
+a) Show that $T$ is a stopping time that satisfies the optional stopping theorem.
+
+b) Find the expected time $\mathbb{E}(T)$ to exit $(-a, a)$.
+
+c) Let $M_t = B_t^4 - 6tB_t^2 + 3t^2$. Then, $(M_t)_{t \ge 0}$ is a martingale, a fact that you do not need to prove. Use this to find the standard deviation of $T$.
+
+$\textbf{Solution:}$ 
+
+a) For this problem consider the picture below:
+
+![](/Users/aarti/Downloads/brownian35.png){width='50%'}
+
+To show that $T$ is a stopping time, we notice that $B_t$ is a standard Brownian motion with mean 0 and variance t which has a upper bound, a, and a lower bound -a. Them,
+$$
+T \equiv T_a \wedge T_{-a}, T_a < \infty, T_{-a} < \infty, B_t \le a \forall t \le T
+$$
+To show $T$ is the optional stopping time, we want to show $T < \infty$ almost surely and $\mathbb{E}[|B_t|] \le c < \infty \forall t \le T$ because $T$ is not   bounded since it has a positive probability that $B_t$ exits the interval. Then,
+$$
+\mathbb{P}(T_a < \infty) = \int_{\mathbb{R}^n} f_{T_a} 
+$$
+if this equals 1 then $T_a$ is finite and that is the same for $T_{-a}$
+$$
+\mathbb{P}(T_a < \infty) = \int_{-\infty}^{\infty} \frac{a}{\sqrt{2 \pi t^3}}e^{\frac{-a^2}{2t}}
+$$
+Note this this a Gaussian. Thus the integral over $\mathbb{R}^n$ must almost surely be 1. So, $T_a$ is finite. Similarly for $T_{-a}$,
+$$
+\mathbb{P}(T_{-a} < \infty) = \int_{-\infty}^{\infty} \frac{-a}{\sqrt{2 \pi t^3}}e^{\frac{a^2}{2t}}
+$$
+should also be 1 almost surely. Thus, $T$ is finite which gives that $T$ satisfies the optional stopping theorem.
+
+b) We want to know $\mathbb{E}[T] = ?$ Look at the martingale $B_t$. We know $\mathbb{E}[B_t] = 0$. By the optional stopping theorem, $T$ is finite and $B_t$ is bounded. Furthermore, we also know $B_t$ is a standard Brownian, so $Var(B_t) = t$.
+$$
+\mathbb{E}[T] = \int_0^{\infty} t f_{T_a}(t) dt + \int_{-\infty}^0 t f_{T_{-a}}(t)dt
+$$
+Observe that $B_T = a$ with probability $p$, then $B_T = -a$ occurs with probability $1-p$. By the optional stopping theorem,
+$$
+0 = \mathbb{E}[B_0] = \mathbb{E}[B_T] = pa + (-a)(1-p)
+$$
+Solving for $p$ gives us,
+$$
+p = \frac{a}{a+a} = \frac{1}{2}
+$$
+Thus, $B_T$ is equally likely to be $a$ or $-a$.
+$$
+B_T = \begin{cases}
+    a, \text{ } p = \frac{1}{2} \\
+    -a, \text{ } q = \frac{1}{2}
+\end{cases}
+$$
+Thus,
+$$
+B_T^2 = a^2
+$$
+Taking expectation of both sides,
+$$
+\mathbb{E}[B_T^2] = \mathbb{E}[a^2]
+$$
+$$
+Var(B_T) + \left(\mathbb{E}[B_T] \right)^2 = \mathbb{E}[a^2]
+$$
+$$
+T + 0 = a^2
+$$
+Taking expectation of both sides again,
+$$
+\mathbb{E}[T] = \mathbb{E}[a^2]
+$$
+Since $a$ is a constant, $a^2$ is also a constant, then
+$$
+\mathbb{E}[T] = a^2
+$$
+c) Consider
+$$
+M_t = B_t^4 - 6tB_t^2 + 3t^2
+$$
+$$
+0 = \mathbb{E}[M_0] = \mathbb{E}[B_t^4 - 6tB_t^2 + 3t^2] = \mathbb{E}[M_T] = \mathbb{E}[B_T^4 - 6TB_T^2 + 3T^2]
+$$
+Recall,
+$$
+\mathbb{E}[T] = \mathbb{E}[B_T^2] = a^2
+$$
+Then,
+$$
+\mathbb{E}[M_T] = \mathbb{E}[B_T^4 - 6TB_T^2 + 3T^2] = a^4 - 6a^2a^2 + 3\mathbb{E}[T^2]
+$$
+$$
+0 = -5a^4 + 3 \mathbb{E}[T^2]
+$$
+Then,
+$$
+\mathbb{E}[T^2] = \frac{5a^4}{3}
+$$
+Then,
+$$
+Var(T) =  \mathbb{E}[T^2] - [ \mathbb{E}[T]]^2 
+$$
+$$
+= \frac{5a^4}{3} - (a^2)^2
+$$
+$$
+Var(T) = \frac{2a^4}{3}
+$$
+Then the standard deviation,
+$$
+SD(T) = \sqrt{\frac{2a^4}{3}}
+$$
+$$
+SD(T) = a^2\sqrt{\frac{2}{3}}
+$$
+
+\newpage
+
+$\textbf{Question 8.36}$ Let $(X_t)_{t \ge 0}$ be a Brownian motion with drift $\mu \neq 0$ and variance $\sigma^2$. The goal of this exercise is to find the probability $p$ that $X_t$ hits $a$ before $-b$, for, $a, b > 0$.
+
+a) let $Y_t = e^{\frac{tc^2}{2} + cB_t}$, where $B_t$ denotes standard Brownian motion. Show that $(Y_t)_{t \ge 0}$ is a martingale for constant $c \neq 0$.
+
+b) Let $T = min\{t: X_t = a \text{ or } -b\}$. Then $T$ is a stopping time that satisfies the optional stopping time theorem. Use (a) and appropriate choice of $c$ to show
+$$
+\mathbb{E}\left(e^{-\frac{2\mu X_T}{\sigma^2}} \right) = 1.
+$$
+
+c) Show that
+$$
+p = \frac{1 - e^{\frac{2\mu b}{\sigma^2}}}{e^{\frac{2\mu a}{\sigma^2}} - e^{\frac{2\mu b}{\sigma^2}}}.
+$$
+
+$\textbf{Solution:}$ 
+a) The appropriate filtration for $Y_t$ is
+$$
+\mathcal{F}_n := \sigma(B_0, ... , B_n) \forall 0 \le s \le n
+$$
+This is the same filtration of $B_t$. Know that under this filtration, $Y_t$ is measurable. 
+Then,
+$$
+\mathbb{E}\left[|Y_t| \right] = \mathbb{E}\left[\Big|e^{\frac{-tc^2}{2} + cB_t}\Big| \right] = e^{\frac{-tc^2}{2}}\mathbb{E}\left[|e^{cB_t}| \right] < \infty
+$$
+$t$ is a finite concept when talking about Brownian motion, furthermore we know that $cB_t$ is a linear combination of $B_t$ which is standard Brownian motion with mean 0 and variance $t$, then the expectation of an exponential of a Normal is just the exponential of the Variance over 2 which is finite. Furthermore, we also know $e^{cB_t}$ is bounded by $(0, 1]$.
+Then we want to show
+$$
+\mathbb{E}[Y_t | \sigma(B_0, ... , B_s)] = Y_s = e^{\frac{-sc^2}{2+cB_s}}
+$$
+$$
+\mathbb{E}\left[e^{\frac{-tc^2}{2}+cB_t}|B_s \right] = e^{\frac{-tc^2}{2}}\mathbb{E}[e^{cB_t}|B_s]
+$$
+As mentioned above, $cB_t$ is Normal since it's a linear combination of $B_t$
+$$
+e^{\frac{-tc^2}{2}}\mathbb{E}[e^{cB_t}|B_s] = e^{\frac{-tc^2}{2}}\mathbb{E}[e^{c(B_s + B_t - B_s)}|B_s] = e^{\frac{-tc^2}{2}}e^{cB_s}\mathbb{E}[e^{cB_{t-s}}|B_s]
+$$
+Since $cB_{t-s}$ is also normal we can use the fact the expectation of an exponential of a normal is just the exponential of the variance over 2. So the variance of $cB_{t-s}$ is $c^2(t-s)$. Thus,
+$$
+e^{\frac{-tc^2}{2}}e^{cB_s}\mathbb{E}[e^{cB_{t-s}}|B_s] = e^{\frac{-tc^2}{2}}e^{cB_s}e^{\frac{c^2(t-s)}{2}}
+$$
+$$
+= e^{\frac{-tc^2+2cB_s+c^2t-c^2s}{2}}
+$$
+$$
+= e^{\frac{2cB_s}{2}-\frac{sc^2}{2}}
+$$
+$$
+= e^{\frac{-sc^2}{2}+cB_s}
+$$
+$$
+= Y_s
+$$
+Thus, $Y_t$ is a martingale. 
+
+b) Let $T = min\{t:X_t=a \text{ or } -b \}$ Then $T$ is a stopping time. Observe
+$$
+B_t = \frac{X_t - \mu t}{\sigma} \text{ since } X_t = \mu t + \sigma B_t
+$$
+So,
+$$
+Y_t = e^{\frac{-tc^2}{2}+c\left(\frac{X_t - \mu t}{\sigma}\right)}
+$$
+$$
+\mathbb{E}[Y_t] = \mathbb{E}\left[e^{\frac{-tc^2}{2}+c\left(\frac{X_t - \mu t}{\sigma}\right)} \right] = \mathbb{E}\left[e^{cB_T - \frac{c^2T}{2}} \right]
+$$
+By the optional stopping theorem, we know $\mathbb{E}[Y_0] = \mathbb{E}\left[e^{cB_0 - \frac{c^2(0)}{2}} \right] = e^0 = 1$. We want this to be true for all $c$. Thus,
+$$
+cB_T - \frac{c^2T}{2} = 0 
+$$
+$$
+c\left(B_T - \frac{cT}{2} \right) = 0
+$$
+Note, we know that $c \neq 0$. Thus,
+$$
+\left(B_T - \frac{cT}{2} \right) = 0
+$$
+$$
+c = \frac{2(X_T - \mu T)}{\sigma T}
+$$
+Since $T = min\{t:X_t=a \text{ or } -b \}$ Then,
+$$
+c = \frac{-2\mu}{\sigma}
+$$
+Plugging this in $Y_t$,
+$$
+\mathbb{E}\left[e^{\frac{-2\mu X_T}{\sigma^2}} \right] = 1
+$$
+Then,
+$$
+\mathbb{E}\left[e^{cB_T - \frac{c^2T}{2}} \right] = \mathbb{E}\left[e^{\frac{-2\mu B_t}{\sigma}- \frac{\left(\frac{-2\mu}{\sigma}\right)^2 T}{2}} \right]
+$$
+$$
+= e^{\frac{-2\mu}{\sigma}}\mathbb{E}\left[e^{\frac{X_t - \mu T}{\sigma}+ \frac{\mu T}{\sigma}} \right]
+$$
+$$
+= \mathbb{E}\left[e^{\frac{-2\mu}{\sigma}\cdot\frac{X_T}{\sigma}} \right]
+$$
+$$
+= \mathbb{E}\left[e^{\frac{-2\mu X_t}{\sigma^2}} \right]
+$$
+$$
+= \mathbb{E}[Y_t]
+$$
+$$
+= 1.
+$$
+
+c) For this question consider the image below
+
+![](/Users/aarti/Downloads/brownian36.png){width='50%'}
+
+Then, Let $p \equiv \mathbb{P}(X_T = a)$ Then, $1-p = \mathbb{P}(X_T = -b)$. We know $\mathbb{E}[Y_t] = \mathbb{E}\left[e^{\frac{-2\mu X_T}{\sigma^2}} \right] = 1$. Then by the total law of expectation,
+$$
+\mathbb{E}\left[e^{\frac{-2\mu X_T}{\sigma^2}} \right] = \mathbb{E}[X_T = a]\mathbb{P}(X_T = a) + \mathbb{E}{X_T = -b}\mathbb{P}(X_T = -b)
+$$
+$$
+1 = p\left(e^{\frac{-2 \mu a}{\sigma^2}} \right) + (1 -p)\left(e^{\frac{2\mu b}{\sigma^2}} \right)
+$$
+$$
+1 = pe^{\frac{-2 \mu a}{\sigma^2}} + e^{\frac{2\mu b}{\sigma^2}} - pe^{\frac{2\mu b}{\sigma^2}}
+$$
+$$
+1 - e^{\frac{2\mu b}{\sigma^2}} = p\left(e^{\frac{-2\mu a}{\sigma^2}} - e^{\frac{2\mu b}{\sigma^2}} \right)
+$$
+$$
+p = \frac{1 - e^{\frac{2\mu b}{\sigma^2}}}{e^{\frac{-2\mu a}{\sigma^2}} - e^{\frac{2\mu b}{\sigma^2}}} 
+$$
+$$\blacksquare$$
+
+\newpage
+
+$\textbf{Question 8.39:}$ Simulate a Brownian motion $(X_t)_{t \ge 0}$ with drift $\mu = 1.5$ and variance $\sigma^2 = 4$. Simulate the probability $\mathbb{P}(X_3 > 4)$ and compare with the exact result.
+
+$\textbf{Solution:}$ Follow the R code below for the simulated as well as the exact probability. 
+```{r}
+set.seed(123)
+# Parameters
+mu <- 1.5
+sigma <- 2
+t <- 3
+n_simulations <- 100000
+
+# Simulating Brownian motion at t=3
+set.seed(123)  # For reproducibility
+simulated_values <- mu * t + sigma * rnorm(n_simulations)
+
+# Estimate P(X_3 > 4)
+prob_simulated <- mean(simulated_values > 4)
+
+# Exact probability
+exact_prob <- 1 - pnorm(4, mean = mu * t, sd = sigma * sqrt(t))
+
+# Results
+cat("Simulated P(X_3 > 4):", prob_simulated, "\n")
+cat("Exact P(X_3 > 4):", exact_prob, "\n")
+```
+Furthermore, the exact probability could also be written as:
+$$
+\mathbb{P}(X_3 > 4) = \mathbb{P}(4.5 + 2B_3 > 4) = \mathbb{P}(B_3 > \frac{4-4.5}{2}) = \mathbb{P}(B_3 > -0.25) = 1 - \mathbb{P}(B_3 \le -0.25) =  0.55738
+$$
+
+\newpage
+
+$\textbf{Question 8.40:}$ Use the script file $\textbf{bbridge.R}$ to simulate a Brownian bridge $(X_t)_{t \ge 0}$. Estimate the probability $\mathbb{P}\left(X_{\frac{3}{4}} \le \frac{1}{3} \right)$. Compare with exact results.
+
+$\textbf{Solution:}$ Follow the code below of the simulated probability:
+```{r}
+set.seed(123)
+trails <- 10000
+sim <- numeric(trails)
+for (i in 1:trails) {
+  t <- seq(0, 1, length=1000)
+  b <- c(0, cumsum(rnorm(999, 0, 1)))/sqrt(1000)
+  bb <- b - t*b[1000]
+  sim[i] <- bb[750]
+}
+mean(sim <= 1/3)
+```
+For the exact probability, 
+$$
+\mathbb{P}\left(X_{\frac{3}{4}} \le \frac{1}{3} \right) = \mathbb{P}\left(B_{\frac{3}{4}} - \frac{3}{4}B_1 \le \frac{1}{3} \right).
+$$
+Note that $B_{\frac{3}{4}} - \frac{3}{4}B_1$ has a normal distribution since it is just a linear combination of two gaussian processes with mean 0. For Variance,
+$$
+Var(B_{\frac{3}{4}} - \frac{3}{4}B_1) = Var(B_{\frac{3}{4}}) + \frac{9}{16}Var(B_1) - 2Cov\left(B_{\frac{3}{4}}, \frac{3}{4}B_1 \right) = \frac{3}{4} + \frac{9}{16} - \frac{9}{8} = \frac{3}{16}.
+$$
+Then, the desired probability is,
+```{r}
+pnorm(1/3, 0, sqrt(3/16))
+```
+
+\newpage
+
+$\textbf{Question: 8.41:}$ The price of a stock modeled as a geometric Brownian motion with drift $\mu = -0.85$ and variance $\sigma^2 = 2.4$ If the current stock price is 50 dollars, find the probability that the price is under 40 dollars in 2 years. Simulate the stock price and compare with the exact value.
+
+$\textbf{Solution:}$ Follow the code below for the simulated as well as the exact stock price.
+```{r}
+set.seed(123)
+trials <- 100000
+mu <- -0.85
+var <- 2.4
+sim <- numeric(trails)
+
+for (i in 1:trails) {
+  b <- tail(cumsum(rnorm(1000)*sqrt(2/1000)),1)
+  gbm <- 50*exp(mu*2 + sqrt(var)*b)
+  if (gbm <= 40) sim[i] <- 1
+}
+
+simprob <- mean(sim)
+
+x41 <- (log(40/50)+(-mu*2))/sqrt(2.4)
+exact_prob41 <- pnorm(x41, 0, sqrt(2))
+
+cat("Simulated probability:", simprob, "\n")
+cat("Exact probability:", exact_prob41, "\n")
+```
+
+\newpage
+
+$\textbf{Question 8.43:}$ Write a function for pricing option using the Black-Scholes formula. Option price is a function of initial stock price, strike price, expiration date, interest date, and volatility.
+
+a) Price an option for a stock that currently sells for 400 dollars has volatility 40%. Assume that the option strike price is 420 dollars and the expiration date is 90 days. Assume a risk-free interest rate of 3%.
+
+b) For each of the five parameters in (a), how does varying the parameter, holding the other four fixed, effect the price of the option?
+
+c) For option in (a), assume the volatility is unkown. However, based on market experience, the option sells for 30 dollars. Estimate the volatility.
+
+$\textbf{Solution:}$ Follow the code below for the option pricing model.
+
+a) 
+
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 420, 0.40, 90/365, 0.03)
+```
+The price is estimated to be `r blackScholes(400, 420, 0.40, 90/365, 0.03)` dollars.
+
+b) 
+
+increasing the initial price increases the option price
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(800, 420, 0.40, 90/365, 0.03)
+```
+
+increasing the strike price decreases the price
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 520, 0.40, 90/365, 0.03)
+```
+
+increasing the volatility increases the price
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 420, 0.80, 90/365, 0.03)
+```
+
+increasing the time also increases the price
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 420, 0.40, 200/365, 0.03)
+```
+
+increasing the interest rate increases the price.
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 420, 0.40, 90/365, 0.3)
+```
+
+c) 
+
+We know the option price sells for 30 dollars. When volatility was 40%, the price was 24 dollars and when it was 80% it was 56, so trying something in the middle
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 420, 0.60, 90/365, 0.03)
+```
+60% gives us 40 dollars and we want it to be 30, so reducing the volatility
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 420, 0.50, 90/365, 0.03)
+```
+Reducing it further
+```{r}
+blackScholes <- function(g0, k, sigma, t, r) {
+  alpha <- (log(k/g0) - (r - sigma^2/2) * t) / sigma
+  price <- g0 * (1 - pnorm((alpha - sigma * t) / sqrt(t))) - 
+           exp(-r * t) * k * (1 - pnorm(alpha / sqrt(t)))
+  return(price)
+}
+
+blackScholes(400, 420, 0.469, 90/365, 0.03)
+```
+
+When volatility is 46.9% or 47% the option price sells for approximately 30 dollars. This is just by using the guess-and-check strategy since I already had the code, however, there is a theoretical way to manipulate the Black-Scholes formula to solve for volatility.
+
+\newpage
+
+# Part 4: Exercises: 9.1-9.3, 9.5, 9.7-9.8, 9.11
+
+$\textbf{Question 9.1:}$ Find the distribution of the stochastic integral $I_t = \int_0^t sB_s ds$.
+
+$\textbf{Solution:}$ We know $s$ is bounded and is a continuous function and it is in $L^2$. That means $\int_0^{\infty}s^2ds < \infty$. By analogy with Riemann-Stieltjes integral, for the partition 
+$$
+0 = t_0 < t_1 < ... < t_{n-1} < t_n = t
+$$
+Let,
+$$
+I_t^{(n)} = \sum_{k=1}^{n} s_{t_k}^\ast (B_{t_k} - B_{t_{k-1}})(t_k - t_{k-1}) 
+$$
+where,
+$$
+t_k^\ast \in [t_{k-1}, t_k]. \text{ Since } B_{t_k} - B_{t_{k-1}} \sim Normal(0, t_k - t_{k-1}),
+$$
+The integral $I_t$ is defined as the limit of the Riemann sum as $n$ tends to infinity and the length of the longest sub interval of the partition converge to 0. 
+For each $n \ge 1$, the Riemann sum $I^{(n)}$ is a random variable which is a linear combination of normal random variables since the Brownian is a Gaussian process. Thus, $I^{(n)}$ is normally distributed. Now we want to know the expectation and the variance of the integral.
+$$
+\mathbb{E}[I_t] = \mathbb{E}\left[\int_0^t sB_s ds \right] = \int_0^ts\mathbb{E}[B_s] ds = 0
+$$
+Then,
+$$
+Var(I_t) = Var\left[\int_0^t sB_s ds \right] 
+$$
+$$
+= \mathbb{E}\left(\left[\int_0^t sB_s ds \right]^2 \right) - \mathbb{E}\left(\left[\int_0^t sB_s ds \right] \right)^2
+$$
+$$
+= \mathbb{E}\left(\left[\int_0^t sB_s ds \right]^2 \right) - 0
+$$
+$$
+= \mathbb{E}[I_t I_t]
+$$
+$$
+= \mathbb{E}\left(\int_0^t xB_xdx \int_0^t yB_ydy \right)
+$$
+$$
+= \int_0^t \int_0^t xy \mathbb{E}[B_xB_y]dydx
+$$
+Note that $\mathbb{E}[B_xB_y]$ is just the $Cov(B_x,B_y) = min\{x,y\}$. Then,
+$$
+\int_0^t \int_0^t xy \mathbb{E}[B_xB_y]dydx = \int_0^t \int_0^t xy \text{ } min\{x,y\}dydx
+$$
+$$
+= \int_0^t \int_0^x xy^2dydx + \int_0^t \int_x^t x^2y dydx
+$$
+$$
+=\int_0^t \frac{xy^3}{3} \Big|_0^x dx+ \int_0^t \frac{x^2y^2}{2}\Big|_x^t dx
+$$
+$$
+= \int_0^t \frac{x^4}{3}dx + \int_0^t \frac{x^2t^2}{2} - \frac{x^4}{2}dx
+$$
+$$
+= \frac{x^5}{15}\Big|_0^t + \frac{x^3t^2}{6} - \frac{x^5}{10}\Big|_0^t
+$$
+$$
+= \frac{2t^5 + 5t^5 - 3t^5}{30}
+$$
+$$
+= \frac{2t^5}{15}
+$$
+Thus,
+$$
+I_t = \int_0^t sB_s ds \sim Normal\left(0, \frac{2t^5}{15} \right)
+$$
+
+\newpage
+
+$\textbf{Question 9.2:}$ Show that the Brownian motion with drift coefficient $\mu$ and variance parameter $\sigma^2$ is a diffusion.
+
+$\textbf{Solution:}$ Note,
+$$
+X_t = \mu t + \sigma B_t
+$$
+where $B_t$ is the standard Brownian motion. We want to show $X_t$ is a diffusion. If we can show $dX_t = a(t, X_t)dt - b(t, X_t)dB_t$ then we can say that it is diffusion. 
+Applying Ito's Lemma in the integral form,
+$$
+X_t - X_0 = \int_0^t a(s, X_s)ds + \int_0^t b(s, X_s)dB_s
+$$
+In order for $X_t$ to be a diffusion, it must satisfy that 
+$$
+X_t - X_0 \stackrel{?}{=} \int_0^t \mu ds + \int_0^t \sigma B_sdB_s
+$$
+$$
+\implies a(t, X_t ) = \mu \text{ and } b(t, X_t) = \sigma
+$$
+$$
+\mu t + \sigma B_t = \mu s |_0^t + \sigma B_s |_0^t = mu t + \sigma B_t
+$$
+Thus, $X_t$ is a diffusion for the drift coefficient $a(t, X_t ) = \mu$ and the diffusion coefficient $b(t, X_t) = \sigma$.
+
+\newpage
+
+$\textbf{Question 9.3:}$ Find $\mathbb{E}(B_t^4)$ by using Ito's Lemma evaluate $d(B_t^4)$. 
+
+$\textbf{Solution:}$ Let $g(t,x) = x^4$. By extension of Ito's Lemma,
+$$
+dg = \left(\frac{\partial g}{\partial t} + \frac{1}{2}\frac{\partial^2g}{\partial x^2} \right)dt + \frac{\partial g}{\partial x}dB_t
+$$
+Note,
+$$
+\frac{\partial g}{\partial t} = 0, \frac{\partial g}{\partial x} = 4x^3, \frac{\partial^2g}{\partial x^2} = 12x^2
+$$
+So,
+$$
+d[B_t^4] = \left(0 + \frac{1}{2}(12B_t^2) \right) + 4B_t^3dB_t = 6B_t^2dt + 4B_t^3dB_t
+$$
+For the expectation,
+$$
+\mathbb{E}[B_t^4] = 6\int_0^t \mathbb{E}[B_s^2]ds + 4\mathbb{E}\int_0^t B_s^3 dB_s
+$$
+$$
+\mathbb{E}[B_t^4] = 6\int_0^t Var(B_s)ds + 4\int_0^t\mathbb{E}[ B_s^3] dB_s
+$$
+Recall if $X \sim Normal(0, \sigma^2)$ then expecation of $X$ is:
+$$
+\mathbb{E}[X^n] = \begin{cases}
+    \sigma^{n}(n -1), \text{ for } n = 2k \text{ that is n is even} \\
+    0, \text{ for } n = 2k+1 \text{ that is n is odd}
+\end{cases}
+$$
+Then,
+$$
+6\int_0^t Var(B_s)ds + 4\int_0^t\mathbb{E}[ B_s^3] dB_s = 6\int_0^t sds + 4\int_0^t0 dB_s
+$$
+$$
+= \frac{6t^2}{2} + 4(0) = 3t^2
+$$
+
+\newpage
+
+$\textbf{Question 9.5:}$ Use the methods of example 9.6 to derive a martingale that is a fourth degree polynomial function of Brownian motion. 
+
+$\textbf{Solution:}$ Consider the known cubic martingale $\frac{1}{3}B_t^3 - tB_t$ which can also be written as $B_t^3 - 3tB_t$ since this is just a linear combination of the previous one, this emerged as a result of example 9.6
+
+Consider the integral $\int_0^tB_s^3 dB_s$
+Use Ito's Lemma with $g(t,x)= x^4$. This gives,
+$$
+B_t^4 = \int_0^t 4B_s^3dB_s + \frac{1}{2}\int_0^t12B_s^2 ds
+$$
+$$
+B_t^4 = 4\int_0^tB_s^3 dB_s + 6 \int_0^t B_s^2 ds
+$$
+Rearranging this gives,
+$$
+\int_0^tB_s^3 dB_s = \frac{B_t^4 - 6 \int_0^t B_s^2 ds}{4}
+$$
+$$
+\int_0^tB_s^3 dB_s = \frac{1}{4}B_t^4 - \frac{3}{2}\int_0^t B_s^2 ds 
+$$
+Now Consider, 
+$$
+\int_0^t (B_s^3 - 3sB_s)dB_s
+$$
+Using linearity we can seperate this integral as
+$$
+\int_0^tB_s^3 - 3\int_0^tsB_sdB_s
+$$
+Substitution $\int_0^tB_s^3$ from the expression above we obtain,
+$$
+\frac{1}{4}B_t^4 - \frac{3}{2}\int_0^t B_s^2 ds - \left(3 \int_0^tsB_sdB_s \right) 
+$$
+Recall from example 9.7 in the textbook,
+$$
+d(tB_t^2) = (B_t^2 + t)dt + 2tB_tdB_t
+$$
+Taking integrals on both sides,
+$$
+tB_t^2 = \int_0^t B_s^2 + s ds + \int_0^t 2sB_sdB_s
+$$
+Rearragnging,
+$$
+\int_0^t sB_s dB_s = \frac{tB_t^2}{2} - \frac{1}{2}\int_0^t B_s^2 + s ds
+$$
+PLugging this into our equation we get,
+$$
+\frac{1}{4}B_t^4 - \frac{3}{2}\int_0^t B_s^2 ds - \left(3 \int_0^tsB_sdB_s \right) = \frac{1}{4}B_t^4 - \frac{3}{2}\int_0^t B_s^2 ds - \left(3 \left(\frac{tB_t^2}{2} - \frac{1}{2}\left(\int_0^t B_s^2 ds + \int_0^t s ds \right) \right) \right)
+$$
+$$
+= \frac{1}{4}B_t^4 - \frac{3}{2}\int_0^tB_s^2 ds - \frac{3}{2}tB_t^2 + \frac{3}{2}\int_0^tB_s^2 ds + \frac{1}{2}\left(\frac{t^2}{2} \right)
+$$
+Simplifying gives,
+$$
+\frac{1}{4}B_t^4 -\frac{3t}{2}B_t^2 + \frac{t^2}{4}
+$$
+Since Ito's integrals are martingales, the fourth degree martingale for Brownian motion is: 
+$$
+B_t^4 -6tB_t^2 + t^2
+$$
+Note that this is just a linear combination of the result we obtained below. Thus, it holds.
+
+\newpage
+
+$\textbf{Question 9.7:}$ Consider the SDE for the $\textit{square root process}$
+$$
+dX_t = dt + 2\sqrt{X_t}dB_t
+$$
+With $X_0 = x_0$, show that $X_t = (B_t + x_0)^2$ is a solution.
+
+$\textbf{Solution:}$ The extension of Ito's lemma says, 
+$$
+dg = \left(\frac{\partial g}{\partial t} + \frac{1}{2}\frac{\partial^2g}{\partial x^2} \right)dt + \frac{\partial g}{\partial x}dB_t
+$$
+Consider, $g(t, x ) = (X + x_0)^2$. Then,
+$$
+\frac{\partial g}{\partial t} = 0, \frac{\partial g}{\partial x} = 2(X + x_0), \frac{\partial^2g}{\partial x^2} = 2
+$$
+Applying Ito we obtain,
+$$
+d(B_t + x_0)^2 = \left(0 + \frac{1}{2}\cdot2 \right)dt + 2(B_t+x_0)dB_t
+$$
+$$
+dX_t = dt + 2\sqrt{X_t}dB_t
+$$
+Thus, $X_t = (B_t + x_0)^2$ is a valid solution.
+
+\newpage
+
+$\textbf{Question 9.8:}$ Show how to use Euler-Maruyama method to stimulate geometric Brownian motion started at $G_0 = 8$, with $\mu = 1$ and $\sigma^2 = 0.25$.
+
+a) Generate a plot of a sample path on $[0,2]$.
+
+b) Stimulate the mean and variance of $G_2$. Compare with the theoretical mean and variance.
+
+$\textbf{Solution:}$ Consider the Geometric Brownian motion
+$$
+S_t = S_0e^{\left(\mu - \frac{\sigma^2}{2} \right)t + \sigma W_t}
+$$
+Where $W_t$ is the standard Brownian motion.
+Then consider
+$$
+dX_t = \mu dt + \sigma dW_t
+$$
+Then, 
+$$
+S = \epsilon (x) = e^{X - \frac{1}{2}[X,X]}
+$$
+Using the box calculus from lecture, this can be rewritten as:
+$$
+s(t,x) = s_0e^{\left(\mu - \frac{\sigma^2}{2} \right)t + \sigma x}
+$$
+Thus,
+$$
+dS_t = S_t \mu dt + S_t\sigma dW_t
+$$
+From Euler-Maruyama, 
+$$
+S_{i+1} = S_i + \mu h S_i + S_i \sigma \sqrt{h}Z_i
+$$
+where $h$ is the step size and $Z$ is the standard normal random variable. So the simulation looks like:
+
+a) 
+```{r, fig.align='center', fig.cap="The plot shows a sample path of the geometric Brownian motion. We can see that the function is behaving like an exponential function which makes sense since the function is described as the initial value times the exponential of the Brownian motion with the drift parameter to be mu and the variance parameter to be sigma squared."}
+set.seed(10)
+g0 <- 8
+mu <- 1
+sigma <- 1/2
+T <- 2
+n <- 1000
+dt <- T/n
+
+#Euler Maruyama
+
+gpath <- numeric(n+1)
+gpath[1] <- g0
+
+for (i in 1:n) {
+gpath[i+1] <- gpath[i] + (mu + sigma^2 /2)*gpath[i]*dt
++ sigma*gpath[i]*sqrt(dt)*rnorm(1)
+}
+
+plot(seq(0,T,dt),gpath,type="l")
+```
+
+b)
+Simulating mean and variance: 
+```{r}
+# Parameters
+set.seed(123)
+g0 <- 8         # Initial value (G0 = 8)
+mu <- 1          # Drift term
+sigmasq <- 0.25     # Volatility term
+t <- 2           # Time interval
+n <- 1000        # Number of steps
+trials <- 5000   # Number of trials (simulations)
+
+# Time step
+dt <- t / n
+
+# Function to simulate one path of GBM
+simulate_gbm <- function() {
+  x <- g0
+  for (i in 1:n) {
+    x <- x + (mu + sigmasq/2)*x*dt+sqrt(sigmasq)*x*sqrt(dt)*rnorm(1)
+  }
+  return(x)  # Return the final value after t = 2
+}
+
+# Run simulations
+simlist <- replicate(trials, simulate_gbm())
+
+# Calculate mean and variance of G2
+simulated_mean <- mean(simlist)
+simulated_variance <- var(simlist)
+
+# Print the results
+cat("Simulated Mean of G2:", simulated_mean, "\n")
+cat("Simulated Variance of G2:", simulated_variance, "\n")
+
+```
+Comparing with the theoretical mean and variance:
+```{r}
+expgeobrow <- function(g0, t, mu, sigsq){
+  expectationgeo <- g0 * exp(t*(mu + sigsq/2))
+  return(expectationgeo)
+}
+
+vargeobrow <- function(g0, t, mu, sigsq){
+  vargeo <- g0^2 * exp(2*t*(mu + sigsq/2))*(exp(t*sigsq) - 1)
+  return(vargeo)
+}
+
+expgeobrow(8,2,1,0.25)
+vargeobrow(8,2,1,0.25)
+```
+As we can see the approximations are pretty close.
+
+\newpage
+
+$\textbf{Question 9.11:}$ The $\textit{Cox-Ingersoll-Ross (CIR) Model}$ 
+$$
+dX_t = -r(X_t - \mu)dt + \sigma \sqrt{X_t}dB_t
+$$
+has been used to describe the evolution of interest rates. The diffusion has the same drift coefficient as the Ornstein-Uhlenbeck process and is also mean-reverting. The CIR model has the advantage over the Ornstein-Uhlenbeck process as the model for interest rates since, unlike the latter, the process is non-negative. However, unlike that process, the CIR model has no closed-form solution.
+With $X_0=0, \mu=1.25, r=2, \text{ and } \sigma = 0.2$, simulate the CIR process. Estimate the asymptotic mean and variance by taking $t=100$. Demonstrate that the process is mean-reverting.
+
+$\textbf{Solution:}$ For this process, it must as time goes to infinity the process should jiggle around the mean no matter where it initiated. Follow the code below to see the simulated value of the process as well as the plot where the process can be seen centered around the mean as t gets bigger and bigger.
+```{r, fig.align='center', fig.cap="As we can see the process moves towards surrounding the mean value as time goes on. The black dotted line is the expectation of the process. This graph only shows till time 5, but we can see that every path is slowly getting pulled towards the mean value. As t gets bigger and bigger the process stays around it's expected value."}
+set.seed(123)
+x0 <- 0
+mu <- 1.25
+r <- 2
+sigma <- 0.2
+t <- 5
+dt = t/n
+n <- 1000        # Number of steps
+trials <- 10 # Number of trials (simulations)
+
+# Function to simulate one path of GBM
+cir <- function() {
+  x <- numeric(n + 1)
+  x[1] <- x0
+  for (i in 1:n) {
+    x[i + 1] <- x[i] - r * (x[i] - mu) * dt + sigma * sqrt(dt) * rnorm(1)
+  }
+  return(x) # Return the whole path
+}
+
+simlist <- replicate(trials, cir()[n+1])
+mean(simlist)
+var(simlist)
+
+#paths <- replicate(trials, cir())
+paths <- replicate(trials, cir())
+
+# Plot multiple sample paths
+matplot(seq(0, t, length.out = n + 1), paths, type = "l", lty = 1,
+        col = rainbow(trials), main = "Sample Paths of CIR Process", xlab = "Time", ylab = "X_t")
+abline(h = mu, col = "black", lty = 2)  # Long-term mean
+```
