@@ -1,0 +1,640 @@
+---
+title: "Final misc 231"
+author: "Aarti Garaye"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Necessary libraries
+
+```{r}
+# setting the seed
+set.seed(123)
+
+# necessary libraries
+library(readxl)
+library(knitr)
+library(dplyr)
+library(tidymodels)
+library(tidyverse)
+library(ggplot2)
+library(naniar)
+library(corrplot)
+library(corrr)
+library(readr)
+library(kableExtra)
+library(parsnip)
+library(workflows)
+library(discrim)
+library(kknn)
+library(yardstick)
+library(glmnet)
+library(janitor)
+library(themis) 
+library(forcats)
+library(fastDummies)
+library(ranger)
+library(vip)
+library(MASS)
+library(kernlab)
+
+# reading the data
+water <- read_excel("water_potability_excel.xlsx")
+water <- water %>%
+  mutate(ph = as.numeric(ph)) %>%
+  mutate(Hardness = as.numeric(Hardness)) %>%
+  mutate(Solids = as.numeric(Solids)) %>%
+  mutate(Chloramines = as.numeric(Chloramines)) %>%
+  mutate(Sulfate = as.numeric(Sulfate)) %>%
+  mutate(Conductivity = as.numeric(Conductivity)) %>%
+  mutate(Organic_carbon = as.numeric(Organic_carbon)) %>%
+  mutate(Trihalomethanes = as.numeric(Trihalomethanes)) %>%
+  mutate(Turbidity = as.numeric(Turbidity)) %>%
+  mutate(Potability = factor(Potability, levels = c("1", "0")))
+```
+
+# EDA
+
+### Number of observations
+
+Let's start by checking how many observations are in the dataset. 
+```{r}
+kable(nrow(water), caption="The table shows number of observations in the water dataset.")
+```
+There are 3276 observations in the dataset. So before we begin, we should check what values are missing
+
+### Missing data
+
+```{r}
+vis_miss(water)
+```
+
+We can see that there is around 4.4% of data missing. We should build a correlation matrix to see which predictors would be correlated with the missing values predictors so we have a better idea of imputation. Furthermore, we should also see the which predictors are correlated and whether it would be a problem. 
+```{r}
+water %>%
+  dplyr::select(where(is.numeric)) %>%
+  cor(use = "pairwise.complete.obs") %>%
+  corrplot(method = "color", type = 'lower')
+```
+Since there is no high correlation between predictors, a knn imputation would be the best way to go about it. However, before we do that we must split our data.
+
+# Splitting the data
+
+```{r}
+water_split <- initial_split(water, prop = 0.70,
+                                strata = Potability)
+
+water_train <- training(water_split)
+water_test <- testing(water_split)
+
+nrow(water_train) # 3276 * 0.7 = 2292.3
+nrow(water_test) 
+
+# Splitting in folds. using v=5
+water_folds <- vfold_cv(water_train, v=5)
+```
+  
+
+
+# More EDA
+
+Checking to see the missing ness in train
+
+```{r}
+vis_miss(water_train)
+```
+
+Around the same.
+
+Checking to see how the distribution of Potability looks like
+
+```{r}
+ggplot(water_train, aes(x=Potability)) +
+  geom_bar() +
+  theme_bw()
+```
+1 is potable i.e. safe to drink and 0 is not potable. The distribution is skewed more towards the not potable water. Let's see it in a table
+```{r}
+kable(table(water_train$Potability))
+```
+Around 60.99% of the training data is not potable. Thus, it is not a 50-50 split. 
+
+
+### Is this EDA??
+
+Let's see the split based on the ph.
+```{r}
+ggplot(water_train, aes(x=Potability, y=ph)) +
+  geom_boxplot() +
+  theme_bw()
+```
+None of them has a significant impact :( 
+
+
+### Descriptive stats
+
+```{r}
+mean(water_train$Hardness)
+mean(water_train$Solids)
+```
+Do I really need this?? What purpose is this serving 
+
+# Scatterplots 
+
+To see the relationship among different predictors and potability maybe a scatterplot is a good idea
+```{r}
+ggplot(water_train, aes(x=Trihalomethanes, y=Turbidity, colour = Potability)) +
+  geom_point() + 
+  theme_bw()
+```
+It looks like there is no clear boundary or predictor which clearly indicates whether water is potable or not.
+
+# Dealing with missing data and creating a recipe
+
+it looks like from the scatter plot that for ph and sulfates and tri.. they are all close together. So we can either use imputation by mean or by the knn method. I think knn would be the best. To keep it simple I'm just going to use 5 neighbors. 
+
+for the recipe I want to use all the predictors for predicting potability. Good thing is that these are all numeric predictors which are uncorrelated with one another so we don't have to worry about any interaction terms. Since we are using knn to predict the missing values we would want to center and scale all of our predictors. 
+
+```{r}
+water_recipe <- recipe(Potability ~ ph + Hardness + Solids + Chloramines + 
+                         Sulfate + Conductivity + Organic_carbon + 
+                         Trihalomethanes + Turbidity, data = water_train) %>%
+  step_normalize(all_nominal_predictors()) %>%
+  step_center() %>%
+  step_scale() %>%
+  step_impute_knn(ph, neighbors = 5, impute_with = 
+                    imp_vars(Hardness, Chloramines, 
+                             Conductivity, Organic_carbon)) %>%
+  step_impute_knn(Sulfate, neighbors = 5, impute_with = 
+                    imp_vars(Solids, Chloramines,
+                             Conductivity, Organic_carbon)) %>%
+  step_impute_knn(Trihalomethanes, neighbors = 5, impute_with = 
+                    imp_vars(Organic_carbon, Hardness,
+                             Conductivity, Turbidity))
+
+prep(water_recipe) %>%
+  bake(new_data=water_train) %>%
+  vis_miss()
+```
+As we can see there aren't any missing values anymore after the imputation step. Now that we are done with creating a recipe 
+
+We know that there is no linear trend but we should still fit an elastic net on the logistic regression for the recipe. So the four models that I would like to fit are logistic regresssion LDA and QDA (we know for sure the predictors don't have a linear decision boundary), elastic net, tree based models, and SVM. Not using KNN because we imputed using KNN so if we use KNN it would create a circular dependency. 
+
+# Creating the models
+
+## Logistic regression LDA and QDA
+
+```{r}
+# Setting engine Logreg
+water_logreg_model <- logistic_reg() %>%
+  set_engine("glm") %>%
+  set_mode("classification")
+
+# Setting workflow Logreg
+water_logreg_workflow <- workflow() %>%
+  add_model(water_logreg_model) %>%
+  add_recipe(water_recipe)
+
+# Setting engine LDA
+water_lda_model <- discrim_linear() %>%
+  set_engine("MASS") %>%
+  set_mode("classification")
+
+# Setting workflow LDA
+water_lda_workflow <- workflow() %>%
+  add_model(water_lda_model) %>%
+  add_recipe(water_recipe)
+
+# Setting engine QDA
+water_qda_model <- discrim_quad() %>%
+  set_engine("MASS") %>%
+  set_mode("classification")
+
+# Setting workflow Logreg
+water_qda_workflow <- workflow() %>%
+  add_model(water_qda_model) %>%
+  add_recipe(water_recipe)
+```
+
+## Elastic net
+
+```{r}
+# Setting engine
+water_en_model <- logistic_reg(mixture = tune(),
+                               penalty = tune()) %>%
+  set_mode("classification") %>%
+  set_engine("glmnet")
+
+# Setting workflow
+water_en_workflow <- workflow() %>%
+  add_model(water_en_model) %>%
+  add_recipe(water_recipe)
+
+# Setting grid
+water_en_grid <- grid_regular(penalty(range = c(0.01, 5), 
+                                      trans = identity_trans()),
+                              mixture(range = c(0,1)),
+                              levels = 10)
+```
+
+## Tree based models
+
+```{r}
+# Setting engine
+water_rf_model <- rand_forest(
+  mtry = tune(),
+  trees = tune(),
+  min_n = tune()
+) %>%
+  set_engine("ranger", importance = "impurity") %>%
+  set_mode("classification")
+
+# Setting workflow
+water_rf_workflow <- workflow() %>%
+  add_model(water_rf_model) %>%
+  add_recipe(water_recipe)
+
+# Setting grid
+water_rf_grid <- grid_regular(mtry(range = c(2,8)),
+                              trees(range = c(200, 1000)),
+                              min_n(range = c(5, 20)),
+                              levels = 8)
+```
+
+# SVM
+
+For SVM we will be using a different recipe. 
+```{r}
+water_svm_recipe <- recipe(Potability ~ Hardness + Solids,
+                           data = water_train) %>%
+  step_normalize(all_predictors())
+
+prep(water_svm_recipe) %>%
+  bake(new_data=water_train)
+```
+
+
+```{r}
+# Setting engine
+water_svm_model <- svm_poly(degree = tune(),
+                            cost = tune()) %>%
+  set_mode("classification") %>%
+  set_engine("kernlab")
+
+# Setting workflow
+water_svm_workflow <- workflow() %>%
+  add_model(water_svm_model) %>%
+  add_recipe(water_svm_recipe) 
+
+# Setting grid
+water_svm_grid <- grid_regular(cost(range = c(-5,5)), 
+                               degree(range = c(1,5)), 
+                               levels = 5)
+```
+
+# Tune the models
+
+this is going to take a lot of time to set the model and run. I will be saving all of them
+
+Logreg, LDA, QDA
+
+```{r}
+# Fitting logreg 
+water_logreg_tune <- fit_resamples(
+  water_logreg_workflow,
+  resamples = water_folds,
+  metrics = metric_set(accuracy, roc_auc),
+  control = control_resamples(save_pred = TRUE)
+)
+
+save(water_logreg_tune, file = "water_logreg_tune.rda")
+
+# Fitting LDA
+water_lda_tune <- fit_resamples(
+  water_lda_workflow,
+  resamples = water_folds,
+  metrics = metric_set(accuracy, roc_auc),
+  control = control_resamples(save_pred = TRUE)
+)
+
+save(water_lda_tune, file = "water_lda_tune.rda")
+
+# Fitting QDA
+water_qda_tune <- fit_resamples(
+  water_qda_workflow,
+  resamples = water_folds,
+  metrics = metric_set(accuracy, roc_auc),
+  control = control_resamples(save_pred = TRUE)
+)
+
+save(water_qda_tune, file = "water_qda_tune.rda")
+```
+
+## Elastic net
+
+```{r}
+water_en_tune <- tune_grid(
+  water_en_workflow,
+  resamples = water_folds,
+  grid = water_en_grid
+)
+
+save(water_en_tune, file = "water_en_tune.rda")
+```
+
+## Tree based model
+
+```{r}
+#water_rf_tune <- tune_grid(
+#  water_rf_workflow,
+#  resamples = water_folds,
+#  grid = water_rf_grid
+#)
+
+#save(water_rf_tune, file = "water_rf_tune.rda")
+```
+
+
+## SVM
+
+```{r}
+#water_svm_tune <- tune_grid(
+#  water_svm_workflow,
+#  resamples = water_folds,
+#  grid = water_svm_grid
+#)
+
+#save(water_svm_tune, file = "water_svm_tune.rda")
+```
+
+## Loading all models
+
+```{r}
+load("water_logreg_tune.rda")
+load("water_lda_tune.rda")
+load("water_qda_tune.rda")
+
+load("water_en_tune.rda")
+
+load("water_rf_tune.rda")
+
+load("water_svm_tune.rda")
+```
+
+# Assessing performance
+
+## Log reg
+
+```{r}
+augment(water_logreg_tune) %>%
+  conf_mat(truth = Potability, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+```
+
+There were 891 true positive and 0 true negative. It's doing better predicting where water is potable. 
+
+Calculating accuracy
+```{r}
+augment(water_logreg_tune) %>%
+  accuracy(truth=Potability, estimate=.pred_class)
+```
+
+ROC curve
+```{r}
+augment(water_logreg_tune) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+As good as random chance. Logistic regression assumes linear relationship between the independent variables and the log odds for the dependent variables. As we saw in the EDA there was no linear relationship in the independent predictors. 
+
+## LDA
+
+```{r}
+augment(water_lda_tune) %>%
+  conf_mat(truth = Potability, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+```
+
+```{r}
+augment(water_lda_tune) %>%
+  accuracy(truth=Potability, estimate=.pred_class)
+```
+
+```{r}
+augment(water_lda_tune) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+LDA is performing the same as Logistic regression. LDA assumes multivariate normal distribution between the predictors and that the covariances are the same. Usually LDAs are used when classes are perfectly separable because logistic regression fails then, as we saw in the scatterplot, the predictors are all clumped together making the LDA model as good as the random guess.
+
+## QDA
+
+```{r}
+augment(water_qda_tune) %>%
+  conf_mat(truth=Potability, estimate =.pred_class) %>%
+  autoplot("heatmap")
+```
+As we can see the QDA confusion matrix is better than the LDA one. It can correctly classify 594 out of the 894 observations with potability 1 saying that the water is potable. On the other hand, the QDA model could only correctly identify 167 out of 1398 not potable observations. This tells us the the QDA model is fairly well with predicting when the observation is potable vs when it's not.
+
+```{r}
+augment(water_qda_tune) %>%
+  accuracy(truth=Potability, estimate = .pred_class)
+```
+
+The QDA model gives a little better accuracy than the logistic regression or the LDA. This is because the QDA releases the restriction of having the same covariance. LDA assumes different means but same covariance in QDA different means and different covariance works okay. Now we are estimating two var-cov matrices one for potable water and one for non-potable water, so we are estimating more parameters. Furthermore, QDA performs well when there are non linear boundaries. As we saw in the scatterplot, our predictors are mostly non-linear. 
+
+Now let's see the roc area under the curve.
+```{r}
+augment(water_qda_tune) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+As we can see the QDA model is doing a little better than previous models, it's enhancing the area under the curve. 
+
+## Elastic Net
+
+For this we want to see which mixture and penalty would give us the best models. Let's just look at the different models
+```{r}
+collect_metrics(water_en_tune)
+```
+
+Now there are different ways to chose the best model, for elastic net let's see how different metric gives me different answers
+
+```{r}
+show_best(water_en_tune)
+```
+```{r}
+select_by_one_std_err(water_en_tune, metric = "roc_auc",
+                      penalty, mixture)
+```
+
+These are very different models so we chose to go with the best one. 
+```{r}
+water_en_best <- select_best(water_en_tune, metric = "roc_auc")
+```
+
+We would want to finalize the workflow
+```{r}
+water_en_final_wf <- finalize_workflow(water_en_workflow, water_en_best)
+
+water_en_final <- fit(water_en_final_wf,
+                      data = water_train)
+```
+
+```{r}
+augment(water_en_final, new_data = water_train) %>%
+  roc_curve(Potability, .pred_1) %>%
+  autoplot()
+```
+As we know the elastic net is not a very good model because it's adjusting the logistic regression. We know there is no linearity in our data so this is bound to perform not as well.
+
+## Random forest
+ 
+```{r}
+collect_metrics(water_rf_tune)
+```
+
+```{r}
+show_best(water_rf_tune)
+```
+
+```{r}
+water_rf_best <- select_best(water_rf_tune)
+```
+
+```{r}
+water_rf_final_wf <- finalize_workflow(water_rf_workflow, water_rf_best)
+
+water_rf_final <- fit(water_rf_final_wf,
+                      data = water_train)
+```
+
+```{r}
+augment(water_rf_final, new_data = water_train) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+on the training set it is perfect, this is our best model so far.
+
+## SVM
+
+```{r}
+collect_metrics(water_svm_tune)
+
+water_svm_tune %>% autoplot()
+```
+
+```{r}
+water_svm_best <- select_best(water_svm_tune)
+
+water_svm_best_fit <- finalize_workflow(water_svm_workflow, water_svm_best) %>%
+  fit(water_train)
+
+water_svm_best_fit %>%  
+  extract_fit_engine() %>% 
+  plot()
+```
+```{r}
+augment(water_svm_best_fit, new_data = water_train) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+# How well the do on the testing data
+
+## Logreg
+
+```{r}
+water_logreg_final_fit <- fit(water_logreg_workflow, data = water_train)
+water_logreg_preds <- augment(water_logreg_final_fit, new_data = water_test)
+
+water_logreg_preds %>%
+  conf_mat(truth = Potability, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+
+water_logreg_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+Not very good on the testing data
+
+## LDA
+
+```{r}
+water_lda_final_fit <- fit(water_lda_workflow, data = water_train)
+water_lda_preds <- augment(water_lda_final_fit, new_data = water_test)
+
+water_lda_preds %>%
+  conf_mat(truth = Potability, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+
+water_lda_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+Same as logreg
+
+## QDA
+
+```{r}
+water_qda_final_fit <- fit(water_qda_workflow, data = water_train)
+water_qda_preds <- augment(water_qda_final_fit, new_data = water_test)
+
+water_qda_preds %>%
+  conf_mat(truth = Potability, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+
+water_qda_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+
+A little better
+
+## Elastic net
+
+```{r}
+# Get predictions on the testing set
+water_en_test_preds <- augment(water_en_final, new_data = water_test)
+
+# Plot ROC curve
+water_en_test_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+
+Really bad
+
+## Random forest
+
+```{r}
+# Predict on the test set
+water_rf_test_preds <- augment(water_rf_final, new_data = water_test)
+
+# Plot ROC curve
+water_rf_test_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+
+Debating for random forest or QDA
+
+## SVM
+
+```{r}
+water_svm_test_preds <- augment(water_svm_best_fit, new_data = water_test)
+
+# Plot ROC curve
+water_svm_test_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+
+Random forest is the best. 

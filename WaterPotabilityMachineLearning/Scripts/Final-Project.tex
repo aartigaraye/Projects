@@ -1,0 +1,1898 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Water Potability Classification Analysis},
+  pdfauthor={Aarti Garaye},
+  colorlinks=true,
+  linkcolor={red},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Water Potability Classification Analysis}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Using Machine Learning Models to Predict the Potability of
+Water.}
+\author{Aarti Garaye}
+\date{2025-06-13}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}\label{introduction}
+
+Water is the most important source of life to sustain many living
+things. All living things on earth depend on water to grow and sustain
+life. In order to use this water in everyday life, it is significant to
+have access to clean water without contamination. Persistent pollution
+of water will affect the life of living organisms using water. Recent
+studies have shown that water quality continues to decline, making it
+less suitable for use.
+\href{https://ieeexplore.ieee.org/abstract/document/9137903/}{1}. Water
+pollution can be defined in terms of its quality which is determined by
+various features like pH, turbidity, electrical conductivity dissolved,
+etc.
+
+This project aims to presents a prediction of water potability deploying
+different classification models employing machine learning algorithms.
+We will be using logistic regression, LDA, QDA, elastic net, a random
+forrest, and SVM. Different classification methods encourage us to
+compare several classification methods that can be used. Machine
+learning is well-suited for this type of classification task.
+Traditional rule-based systems often depend on fixed thresholds for each
+parameter (e.g., ``pH must be between 6.5 and 8.5''), but these
+boundaries may fail to capture the complex, non-linear relationships
+between water features and potability.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2121}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3394}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4485}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Term
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Quick Definition
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Why It Matters for Health
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{pH} & Measure of acidity/basicity (scale 0--14). & Extreme pH
+can corrode pipes and leach heavy metals. \\
+\textbf{Turbidity} & Cloudiness caused by suspended particles (NTU). &
+High turbidity can shield pathogens and reduce disinfection
+effectiveness. \\
+\textbf{Hardness} & Concentration of calcium \& magnesium (mg CaCO₃/L).
+& Aesthetic concern; very high values promote scale formation. \\
+\textbf{Total Dissolved Solids (Solids)} & Mass of inorganic salts \&
+small organic molecules (ppm). & Elevated TDS can alter taste and
+indicate other contaminants. \\
+\textbf{Chloramines} & Disinfectant formed from chlorine + ammonia
+(mg/L). & Necessary for disinfection but toxic at high doses. \\
+\textbf{Sulfate} & Dissolved sulfate ions (mg/L). & \textgreater{} 250
+mg/L imparts bitter taste and laxative effect. \\
+\textbf{Conductivity} & Ability of water to conduct electricity (µS/cm).
+& Proxy for total ion concentration. \\
+\textbf{Organic Carbon} & Carbon from natural organic matter (mg C/L). &
+Reacts with chlorine to form harmful disinfection by-products. \\
+\textbf{Trihalomethanes (THMs)} & Chlorination by-products (µg/L). &
+Long-term exposure linked to cancer risk. \\
+\end{longtable}
+
+The primary goal of this project is to develop and compare predictive
+models that can flag unsafe water using readily obtainable measurements.
+Concretely, we will:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Pre-process the dataset of \(\approx 3000\) samples: impute missing
+  values, standardize predictors, and stratify into training and testing
+  subsets.
+\item
+  Train each of the six algorithms using cross-validation to ensure fair
+  evaluation (hyper-parameter tuning where applicable).
+\item
+  Assess model performance with accuracy, ROC-AUC, and confusion
+  matrices on an unseen test set.
+\item
+  Interpret variable importance to identify which chemical features
+  drive potability decisions.
+\item
+  Deliver a concise recommendation of the best-performing, most
+  practical model for potential deployment in routine water-quality
+  screening.
+\end{enumerate}
+
+\section{Data Citation}\label{data-citation}
+
+I have obtained the dataset from one of the recommended data sources
+provided by Prof.~Coburn. It's the water potability data from
+\href{https://www.kaggle.com/datasets/developerghost/water-potability/data}{Kaggle}.
+A formal citation is included in the References section.
+
+\section{Exploratory Data Analysis}\label{exploratory-data-analysis}
+
+Before we begin with exploring the data, we must set seed for
+reproducibility, load all the necessary libraries, and read the data in.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# setting the seed}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+
+\CommentTok{\# necessary libraries}
+\FunctionTok{library}\NormalTok{(readxl)}
+\FunctionTok{library}\NormalTok{(knitr)}
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(tidymodels)}
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(naniar)}
+\FunctionTok{library}\NormalTok{(corrplot)}
+\FunctionTok{library}\NormalTok{(corrr)}
+\FunctionTok{library}\NormalTok{(readr)}
+\FunctionTok{library}\NormalTok{(kableExtra)}
+\FunctionTok{library}\NormalTok{(parsnip)}
+\FunctionTok{library}\NormalTok{(workflows)}
+\FunctionTok{library}\NormalTok{(discrim)}
+\FunctionTok{library}\NormalTok{(kknn)}
+\FunctionTok{library}\NormalTok{(yardstick)}
+\FunctionTok{library}\NormalTok{(glmnet)}
+\FunctionTok{library}\NormalTok{(janitor)}
+\FunctionTok{library}\NormalTok{(themis) }
+\FunctionTok{library}\NormalTok{(forcats)}
+\FunctionTok{library}\NormalTok{(fastDummies)}
+\FunctionTok{library}\NormalTok{(ranger)}
+\FunctionTok{library}\NormalTok{(vip)}
+\FunctionTok{library}\NormalTok{(MASS)}
+\FunctionTok{library}\NormalTok{(kernlab)}
+
+\CommentTok{\# reading the data}
+\NormalTok{water }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"water\_potability\_excel.xlsx"}\NormalTok{)}
+\NormalTok{water }\OtherTok{\textless{}{-}}\NormalTok{ water }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{ph =} \FunctionTok{as.numeric}\NormalTok{(ph)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Hardness =} \FunctionTok{as.numeric}\NormalTok{(Hardness)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Solids =} \FunctionTok{as.numeric}\NormalTok{(Solids)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Chloramines =} \FunctionTok{as.numeric}\NormalTok{(Chloramines)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Sulfate =} \FunctionTok{as.numeric}\NormalTok{(Sulfate)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Conductivity =} \FunctionTok{as.numeric}\NormalTok{(Conductivity)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Organic\_carbon =} \FunctionTok{as.numeric}\NormalTok{(Organic\_carbon)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Trihalomethanes =} \FunctionTok{as.numeric}\NormalTok{(Trihalomethanes)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Turbidity =} \FunctionTok{as.numeric}\NormalTok{(Turbidity)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Potability =} \FunctionTok{factor}\NormalTok{(Potability, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"1"}\NormalTok{, }\StringTok{"0"}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Familiarizing with the
+Data}\label{familiarizing-with-the-data}
+
+This data was obtained from a well known data source, Kaggle, so it's
+easier to know the variables present in the data. It's a good idea to
+look at the description of what the data contains.
+
+The dataset contains \(3276\) observations. We can quickly check that
+information by counting the number of rows.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{kable}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(water), }\AttributeTok{caption =} \StringTok{"Number of observations in the dataset."}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}r@{}}
+\caption{Number of observations in the dataset.}\tabularnewline
+\toprule\noalign{}
+x \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+x \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+3276 \\
+\end{longtable}
+
+Here is a description of what each variable represents in the dataset:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \texttt{ph}: PH is an important parameter in evaluating the acid--base
+  balance of water. It is also the indicator of acidic or alkaline
+  condition of water status. WHO has recommended maximum permissible
+  limit of pH from 6.5 to 8.5. The current investigation ranges were
+  6.52--6.83 which are in the range of WHO standards.
+\item
+  \texttt{Hardness}: Hardness is mainly caused by calcium and magnesium
+  salts. These salts are dissolved from geologic deposits through which
+  water travels. The length of time water is in contact with hardness
+  producing material helps determine how much hardness there is in raw
+  water. Hardness was originally defined as the capacity of water to
+  precipitate soap caused by Calcium and Magnesium.
+\item
+  \texttt{Solids} : Water has the ability to dissolve a wide range of
+  inorganic and some organic minerals or salts such as potassium,
+  calcium, sodium, bicarbonates, chlorides, magnesium, sulfates etc.
+  These minerals produced un-wanted taste and diluted color in
+  appearance of water. This is the important parameter for the use of
+  water. The water with high TDS value indicates that water is highly
+  mineralized. Desirable limit for TDS is 500 mg/l and maximum limit is
+  1000 mg/l which prescribed for drinking purpose.
+\item
+  \texttt{Chlormines}: Chlorine and chloramine are the major
+  disinfectants used in public water systems. Chloramines are most
+  commonly formed when ammonia is added to chlorine to treat drinking
+  water. Chlorine levels up to 4 milligrams per liter (mg/L or 4 parts
+  per million (ppm)) are considered safe in drinking water.
+\item
+  \texttt{Sulfate}: Sulfates are naturally occurring substances that are
+  found in minerals, soil, and rocks. They are present in ambient air,
+  groundwater, plants, and food. The principal commercial use of sulfate
+  is in the chemical industry. Sulfate concentration in seawater is
+  about 2,700 milligrams per liter (mg/L). It ranges from 3 to 30 mg/L
+  in most freshwater supplies, although much higher concentrations (1000
+  mg/L) are found in some geographic locations.
+\item
+  \texttt{Conductivity}: Pure water is not a good conductor of electric
+  current rather's a good insulator. Increase in ions concentration
+  enhances the electrical conductivity of water. Generally, the amount
+  of dissolved solids in water determines the electrical conductivity.
+  Electrical conductivity (EC) actually measures the ionic process of a
+  solution that enables it to transmit current. According to WHO
+  standards, EC value should not exceeded 400 \(\mu\)S/cm.
+\item
+  \texttt{Organic\_carbon}: Total Organic Carbon (TOC) in source waters
+  comes from decaying natural organic matter (NOM) as well as synthetic
+  sources. TOC is a measure of the total amount of carbon in organic
+  compounds in pure water. According to US EPA \textless{} 2 mg/L as TOC
+  in treated / drinking water, and \textless{} 4 mg/Lit in source water
+  which is use for treatment.
+\item
+  \texttt{Trihalomethanes}: THMs are chemicals which may be found in
+  water treated with chlorine. The concentration of THMs in drinking
+  water varies according to the level of organic material in the water,
+  the amount of chlorine required to treat the water, and the
+  temperature of the water that is being treated. THM levels up to 80
+  ppm is considered safe in drinking water.
+\item
+  \texttt{Turbidity}: The turbidity of water depends on the quantity of
+  solid matter present in the suspended state. It is a measure of light
+  emitting properties of water and the test is used to indicate the
+  quality of waste discharge with respect to colloidal matter. The mean
+  turbidity value obtained for Wondo Genet Campus (0.98 NTU) is lower
+  than the WHO recommended value of 5.00 NTU.
+\item
+  \texttt{Potability}: Indicates if water is safe for human consumption
+  where 1 means Potable and 0 means Not potable.
+\end{enumerate}
+
+\subsection{Missing data}\label{missing-data}
+
+To check whether there is any missing data in the dataset, I would like
+to use \texttt{vis\_miss}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{vis\_miss}\NormalTok{(water)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-3-1} 
+
+}
+
+\caption{There is around 4.4\% of data missing. There are missing values of ph, Sulfate, and Trihalomethanes.}\label{fig:unnamed-chunk-3}
+\end{figure}
+
+The best way to handle these missing values would be to impute them in
+the recipe. However, to check if we can use linear imputation we would
+like to check whether the predictors are correlated or not. If some
+predictors are highly correlated with some of the missing variables then
+we can use that to impute the missing values.
+
+\subsection{Correlation Matrix}\label{correlation-matrix}
+
+It's important to check the correlation as it tells us whether we would
+like to use some interaction terms to make our models more robust and
+handle the collinearity if it is present.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(}\FunctionTok{where}\NormalTok{(is.numeric)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{cor}\NormalTok{(}\AttributeTok{use =} \StringTok{"pairwise.complete.obs"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{corrplot}\NormalTok{(}\AttributeTok{method =} \StringTok{"color"}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}lower\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-4-1} 
+
+}
+
+\caption{The correlation matrix between predictors. Note, there is no Potability since it is not a numerical variable. There is no strong correlation between any two predictors. We don't have to worry about the interraction terms.}\label{fig:unnamed-chunk-4}
+\end{figure}
+
+As mentioned in the above section, we would've used come correlated
+variables to impute and find he missing data. Since none of them are
+correlated, a knn imputation would work the best. Or we could impute by
+median since it is a more robust statistic than mean.
+
+\subsection{Balance}\label{balance}
+
+Before we proceed, we need to check whether we have a balanced or an
+imbalanced dataset. To do this, we can make a bar chart and see whether
+the number of observations for one class of Potability is significantly
+more than the other.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(water, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{Potability)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-5-1} 
+
+}
+
+\caption{This is an example of an imbalanced dataset. There are more observations that are not Potable. To tackle this problem, I will use stratified splitting, stratifying on the outcome variable.}\label{fig:unnamed-chunk-5}
+\end{figure}
+
+The dataset is skewed towards not Potable water since 0 represents water
+than is unsafe (not Potable). This can also be more clearly seen in a
+table where we can see the number of observations that are potable and
+observations that are not.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{kable}\NormalTok{(}\FunctionTok{table}\NormalTok{(water}\SpecialCharTok{$}\NormalTok{Potability), }\AttributeTok{caption=}\StringTok{"Number of observations in each }
+\StringTok{      class of the water dataset"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}lr@{}}
+\caption{Number of observations in each class of the water
+dataset}\tabularnewline
+\toprule\noalign{}
+Var1 & Freq \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Var1 & Freq \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 1278 \\
+0 & 1998 \\
+\end{longtable}
+
+As the table shows, there are more observations that are not safe.
+
+\subsection{Visual EDA}\label{visual-eda}
+
+To see whether any predictor is a strong predictor of the outcome
+variable, I made some boxplot and scatterplots. Variables that I think
+will contribute the most to the Potability of water would be ph,
+Hardness, and Conductivity.
+
+\subsubsection{Boxplot}\label{boxplot}
+
+I would like to make a boxplot for ph and Potability so see whether ph
+is a good indicator of Potability.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(water, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{Potability, }\AttributeTok{y=}\NormalTok{ph)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-7-1} 
+
+}
+
+\caption{The boxplot shows that there is no significant different between the ph levels of Potable water and not Potable water.}\label{fig:unnamed-chunk-7}
+\end{figure}
+
+\subsubsection{Scatterplot}\label{scatterplot}
+
+The correlation matrix shows us that there is no linear correlation
+between the two predictors, but a scatterplot might show non-linear
+patterns between different predictors, so it's important to make a
+scatterplot of two predictors as well as the Potability.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(water, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{Hardness, }\AttributeTok{y=}\NormalTok{Conductivity, }\AttributeTok{colour =}\NormalTok{ Potability)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} 
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-8-1} 
+
+}
+
+\caption{There is no visible trend between the Hardness and Conductivity of water and it's Potability. It looks like no matter where the observation is there is a random chance of it being Potable and not Potable.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+I tried different scatterplots using different combinations of the
+predictors and Potability and all of them look similar to the one we
+have above. This might seem a little disheartening to make a model that
+could predict the Potability of water when everything just seems random.
+Our goal is to build a model that is a little better than the random
+chance, and that would be counted as a win.
+
+\section{Data Split}\label{data-split}
+
+Since there are around 3000 observations, I think a 70/30 split would be
+appropriate.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_split }\OtherTok{\textless{}{-}} \FunctionTok{initial\_split}\NormalTok{(water, }\AttributeTok{prop =} \FloatTok{0.70}\NormalTok{,}
+                                \AttributeTok{strata =}\NormalTok{ Potability)}
+
+\NormalTok{water\_train }\OtherTok{\textless{}{-}} \FunctionTok{training}\NormalTok{(water\_split)}
+\NormalTok{water\_test }\OtherTok{\textless{}{-}} \FunctionTok{testing}\NormalTok{(water\_split)}
+
+\FunctionTok{kable}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(water\_train), }\AttributeTok{caption =} \StringTok{"Number of observations in the }
+\StringTok{      training dataset"}\NormalTok{) }\CommentTok{\# 3276 * 0.7 = 2292.3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}r@{}}
+\caption{Number of observations in the training dataset}\tabularnewline
+\toprule\noalign{}
+x \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+x \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+2292 \\
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{kable}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(water\_test), }\AttributeTok{caption =} \StringTok{"Number of observations in the }
+\StringTok{      testing dataset."}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}r@{}}
+\caption{Number of observations in the testing dataset.}\tabularnewline
+\toprule\noalign{}
+x \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+x \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+984 \\
+\end{longtable}
+
+Furthermore, we will be employing a k-fold cross validation, so I would
+like to split the training data into folds right now. Since we have a
+quite good amount of observations and the tree models will be bigger, I
+would like \(k=5\). Thus, we will be employing a 5-fold cross validation
+and since we have an imbalanced dataset, we will be stratifying on the
+outcome variable just like we did for the training and the testing
+split.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Splitting in folds. using v=5}
+\NormalTok{water\_folds }\OtherTok{\textless{}{-}} \FunctionTok{vfold\_cv}\NormalTok{(water\_train, }\AttributeTok{v=}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Creating a Recipe}\label{creating-a-recipe}
+
+We will now bring together our predictors and our response variable to
+build our recipe which we will use for all the models. This recipe is
+what is going to make our models tasty (functioning and better than a
+random chance). Each variable plays an important role in predicting the
+Potability, especially after what we just found about the predictors'
+relationship with the response variable in the EDA section (none of the
+predictors show a strong relationship with Potability, so they must all
+contribute to explaining the variability in Potability).
+
+We have some missing data in some of the variables, so we would like to
+use a knn imputation to come up with the missing values. As mentioned in
+the EDA the relationship between predictor variables look similar to the
+one scatterplot presented above, therefore, it wouldn't matter which
+predictors we use as imputation variables. I made the decision based on
+the scatter plots of these variables and these were the ``closest''
+ones. For the knn imputation, I chose the hyperparameter, the number of
+neighbors to be 5. There is no significant enough reason why I chose
+that, but I didn't want to choose the neighbors to be too high which
+might result in a higher dimensionality and computation problems. This
+was the first number that came to my mind and I went with my instincts
+after looking at the scatterplots.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_recipe }\OtherTok{\textless{}{-}} \FunctionTok{recipe}\NormalTok{(Potability }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ph }\SpecialCharTok{+}\NormalTok{ Hardness }\SpecialCharTok{+}\NormalTok{ Solids }\SpecialCharTok{+}\NormalTok{ Chloramines }\SpecialCharTok{+} 
+\NormalTok{                         Sulfate }\SpecialCharTok{+}\NormalTok{ Conductivity }\SpecialCharTok{+}\NormalTok{ Organic\_carbon }\SpecialCharTok{+} 
+\NormalTok{                         Trihalomethanes }\SpecialCharTok{+}\NormalTok{ Turbidity, }\AttributeTok{data =}\NormalTok{ water\_train) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{step\_center}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{step\_scale}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{step\_impute\_knn}\NormalTok{(ph, }\AttributeTok{neighbors =} \DecValTok{5}\NormalTok{, }\AttributeTok{impute\_with =} 
+                    \FunctionTok{imp\_vars}\NormalTok{(Hardness, Chloramines, }
+\NormalTok{                             Conductivity, Organic\_carbon)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{step\_impute\_knn}\NormalTok{(Sulfate, }\AttributeTok{neighbors =} \DecValTok{5}\NormalTok{, }\AttributeTok{impute\_with =} 
+                    \FunctionTok{imp\_vars}\NormalTok{(Solids, Chloramines,}
+\NormalTok{                             Conductivity, Organic\_carbon)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{step\_impute\_knn}\NormalTok{(Trihalomethanes, }\AttributeTok{neighbors =} \DecValTok{5}\NormalTok{, }\AttributeTok{impute\_with =} 
+                    \FunctionTok{imp\_vars}\NormalTok{(Organic\_carbon, Hardness,}
+\NormalTok{                             Conductivity, Turbidity))}
+
+\FunctionTok{prep}\NormalTok{(water\_recipe) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{bake}\NormalTok{(}\AttributeTok{new\_data=}\NormalTok{water\_train) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{vis\_miss}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-11-1} 
+
+}
+
+\caption{As we can see after the recipe has been preped and baked, we have no missing values now.}\label{fig:unnamed-chunk-11}
+\end{figure}
+
+In our dataset we only have numeric predictors so we didn't need to
+dummy code any of the categorical predictor. We centered and scaled all
+predictors in the test which essentially is just normalizing all the
+predictors. We do this to ensure that no predictors have widely
+different scales, it tends to improve the algorithm performance.Now that
+we have our recipe ready, we can move on to creating the models for
+predicting Potability of water.
+
+Note, that we will be using a different recipe for the support vector
+machine algorithm because the scatterplot didn't show clear distinction
+between the predictors. It basically is an optimization problem set up
+and involves in finding the optimal hyperplane that maximizes the
+margins between classes. So, the a lesser dimension recipe works better
+for SVMs. The SVM recipe is as follows:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_svm\_recipe }\OtherTok{\textless{}{-}} \FunctionTok{recipe}\NormalTok{(Potability }\SpecialCharTok{\textasciitilde{}}\NormalTok{ Hardness }\SpecialCharTok{+}\NormalTok{ Solids,}
+                           \AttributeTok{data =}\NormalTok{ water\_train) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{step\_normalize}\NormalTok{(}\FunctionTok{all\_predictors}\NormalTok{())}
+
+\FunctionTok{prep}\NormalTok{(water\_svm\_recipe) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{bake}\NormalTok{(}\AttributeTok{new\_data=}\NormalTok{water\_train) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 2,292 x 3
+##    Hardness  Solids Potability
+##       <dbl>   <dbl> <fct>     
+##  1    0.246 -0.126  0         
+##  2   -2.06  -0.371  0         
+##  3    0.535  0.0132 0         
+##  4   -0.480 -0.445  0         
+##  5   -0.260  0.777  0         
+##  6    0.199 -0.934  0         
+##  7   -2.37  -0.864  0         
+##  8    0.927  0.406  0         
+##  9   -0.955  1.20   0         
+## 10    0.667 -0.356  0         
+## # i 2,282 more rows
+\end{verbatim}
+
+We will still be normalizing all predictors to make sure the scales are
+not widely different.
+
+\section{Building Models}\label{building-models}
+
+The models we will be working with are Logistic Regression, LDA, QDA,
+Elastic Net, Random Forest, and SVM. I wanted to employ a knn model as
+well, however, we did in that in the recipe to impute the missing
+values. We will be relying on KNN twice which creates redundancy and we
+may risk overfitting if we use KNN. It's generally not recommended to
+use the same model for imputation and for modelling.
+
+\subsection{Logistic Regression, LDA, and
+QDA}\label{logistic-regression-lda-and-qda}
+
+Starting with building the models that won't be tuned, logistic
+regression, LDA, and QDA. We don't expect for the logistic regression
+and the LDA to perform very well because they assume linearity and same
+covariance for LDA and same means. QDA is slightly less strict in the
+sense that it assumes same means but different covariances between the
+predictors. I think the QDA will perform better than logistic regression
+and the LDA.
+
+In the following code chunk we will be setting the engines and workflow
+for logistic regression, LDA, and QDA
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Setting engine Logreg}
+\NormalTok{water\_logreg\_model }\OtherTok{\textless{}{-}} \FunctionTok{logistic\_reg}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"glm"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{)}
+
+\CommentTok{\# Setting workflow Logreg}
+\NormalTok{water\_logreg\_workflow }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_model}\NormalTok{(water\_logreg\_model) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_recipe}\NormalTok{(water\_recipe)}
+
+\CommentTok{\# Setting engine LDA}
+\NormalTok{water\_lda\_model }\OtherTok{\textless{}{-}} \FunctionTok{discrim\_linear}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"MASS"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{)}
+
+\CommentTok{\# Setting workflow LDA}
+\NormalTok{water\_lda\_workflow }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_model}\NormalTok{(water\_lda\_model) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_recipe}\NormalTok{(water\_recipe)}
+
+\CommentTok{\# Setting engine QDA}
+\NormalTok{water\_qda\_model }\OtherTok{\textless{}{-}} \FunctionTok{discrim\_quad}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"MASS"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{)}
+
+\CommentTok{\# Setting workflow Logreg}
+\NormalTok{water\_qda\_workflow }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_model}\NormalTok{(water\_qda\_model) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_recipe}\NormalTok{(water\_recipe)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Elastic Net}\label{elastic-net}
+
+Now we will be setting an elastic net model where we can tune the
+penalty and mixture. It combines the strengths of lasso and ridge
+regression but the tradeoff is that we have to tune two hyperparameters.
+The least squares coefficients estimates expect scaled equivalence.
+Elastic net is computationally more expensive than ridge or lasso
+because it's a mix of both and can ``solve'' both limitations of lasso
+and ridge, while including special cases.
+
+Penalty is a non negative number representing the total amount of
+regularization. Mixture is a number between 0 and 1 (inclusive) denoting
+the proportion of lasso regularization in the model. So, Mixture 1 is a
+pure lasso regression and Mixture 0 is a pure ridge.
+
+We will be tuning the elastic net using the 5-fold cross validation.
+Recall that we already created the folds. In the code chunk below we
+will be setting the engine, setting the workflow, and creating a grid
+for the elastic net model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Setting engine}
+\NormalTok{water\_en\_model }\OtherTok{\textless{}{-}} \FunctionTok{logistic\_reg}\NormalTok{(}\AttributeTok{mixture =} \FunctionTok{tune}\NormalTok{(),}
+                               \AttributeTok{penalty =} \FunctionTok{tune}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"glmnet"}\NormalTok{)}
+
+\CommentTok{\# Setting workflow}
+\NormalTok{water\_en\_workflow }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_model}\NormalTok{(water\_en\_model) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_recipe}\NormalTok{(water\_recipe)}
+
+\CommentTok{\# Setting grid}
+\NormalTok{water\_en\_grid }\OtherTok{\textless{}{-}} \FunctionTok{grid\_regular}\NormalTok{(}\FunctionTok{penalty}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.01}\NormalTok{, }\DecValTok{5}\NormalTok{), }
+                                      \AttributeTok{trans =} \FunctionTok{identity\_trans}\NormalTok{()),}
+                              \FunctionTok{mixture}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+                              \AttributeTok{levels =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Random Forest}\label{random-forest}
+
+Random Forest is an ensemble learning method that operates by
+constructing a multitude of decision trees during training time and
+outputting the class that is the mode of the classes of the individual
+trees. It is particularly effective for classification tasks due to its
+ability to handle nonlinear relationships, avoid overfitting through
+averaging, and provide insights into feature importance.
+
+The hyperparameters we will be tuning for a random forest are mtry,
+which is essentially the most influential hyperparameter. Each tree gets
+a subset of parameters to form the tree on because otherwise all of the
+trees will follow the greedy approach and split on the same parameters
+at every stage and that would not result in independent trees. So,
+\texttt{mtry} is a hyperparameter about how many predictors will be
+available to each tree at each split. Typically \(m = \sqrt{p}\) where
+\(p\) is the number of parameters.
+
+The next hyperparameter in the model is tress which is just the number
+of trees. As the number of trees increase the computation time
+increases. There's a tradeoff between computation time and test error.
+At some point if you increase the number of trees it would increase the
+time exponentially but the test error wouldn't see that significant of a
+difference.
+
+The last hyperparameter we will be tuning is the \texttt{min\_n} which
+is also known as the stopping time or the tree size. Without a min\_n a
+tree can grow a lot and we have to prune it. The min\_n tells when each
+tree must stop, this way we can ensure uniformity in tree size across
+our random forest.
+
+In the next code chunk we will be setting up the engine for the random
+forest, the workflow, and the grid for tuning.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Setting engine}
+\NormalTok{water\_rf\_model }\OtherTok{\textless{}{-}} \FunctionTok{rand\_forest}\NormalTok{(}
+  \AttributeTok{mtry =} \FunctionTok{tune}\NormalTok{(),}
+  \AttributeTok{trees =} \FunctionTok{tune}\NormalTok{(),}
+  \AttributeTok{min\_n =} \FunctionTok{tune}\NormalTok{()}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"ranger"}\NormalTok{, }\AttributeTok{importance =} \StringTok{"impurity"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{)}
+
+\CommentTok{\# Setting workflow}
+\NormalTok{water\_rf\_workflow }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_model}\NormalTok{(water\_rf\_model) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_recipe}\NormalTok{(water\_recipe)}
+
+\CommentTok{\# Setting grid}
+\NormalTok{water\_rf\_grid }\OtherTok{\textless{}{-}} \FunctionTok{grid\_regular}\NormalTok{(}\FunctionTok{mtry}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{8}\NormalTok{)),}
+                              \FunctionTok{trees}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{200}\NormalTok{, }\DecValTok{1000}\NormalTok{)),}
+                              \FunctionTok{min\_n}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{, }\DecValTok{20}\NormalTok{)),}
+                              \AttributeTok{levels =} \DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For these, we set the mtry to be between 2 and 8 because there are 9
+total parameters and having 1 or 9 as m doesn't work. If \(m=1\) then
+every tree only has access to 1 predictor at each split. This would mean
+we are restricting every split for every tree to just one of the
+predictors and forcing it to choose that one predictor. This defies the
+greedy approach that we talked about. On the other hand, when \(m=9\) we
+are making all the predictors available for split. This results in all
+the trees making split on the predictor they think explains the most
+variability. As a result all trees make the first split on the same
+variable making the trees not independent. It represents a Bagging model
+when \(m=9\).
+
+I've selected the number of trees to range from 200 to 1000 since I
+think these will be enough to cover the datasetl. The min\_n range is
+from 5 to 20 and there are 8 levels which I thought was a middle ground
+between 5 and 10.
+
+\subsection{SVM}\label{svm}
+
+A support vector machine is a powerful supervised learning algorithm
+used for classification and regression tasks. It works by finding the
+optimal hyperplane that best separates classes in the feature space.
+When data is not linearly separable, SVM can apply kernel functions
+(e.g., polynomial, radial basis function) to transform the data into a
+higher-dimensional space where separation is possible.
+
+In our case, we employed a polynomial kernel and tuned key
+hyperparameters such as cost, controls the tradeoff between margin size
+and misclassification, and degree, determines the flexibility of the
+polynomial.
+
+We have a different recipe for SVM because we didn't have enough time in
+class to cover it in depth, so I followed the lab materials to build
+this model. Furthermore, we know SVMs are sensitive to scaled predictors
+and they may not require the same preprocessing steps as tree-based
+models.We use a different recipe for SVM to prepare the data in a way
+that makes SVM work properly --- especially normalization and encoding
+--- while other models may not need those steps. This is a very simple
+SVM model which doesn't capture the entirety of the data.
+
+In the code below we have set up the engine, the workflow, and the grid
+for the SVM model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Setting engine}
+\NormalTok{water\_svm\_model }\OtherTok{\textless{}{-}} \FunctionTok{svm\_poly}\NormalTok{(}\AttributeTok{degree =} \FunctionTok{tune}\NormalTok{(),}
+                            \AttributeTok{cost =} \FunctionTok{tune}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"kernlab"}\NormalTok{)}
+
+\CommentTok{\# Setting workflow}
+\NormalTok{water\_svm\_workflow }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_model}\NormalTok{(water\_svm\_model) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_recipe}\NormalTok{(water\_svm\_recipe) }
+
+\CommentTok{\# Setting grid}
+\NormalTok{water\_svm\_grid }\OtherTok{\textless{}{-}} \FunctionTok{grid\_regular}\NormalTok{(}\FunctionTok{cost}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{5}\NormalTok{,}\DecValTok{5}\NormalTok{)), }
+                               \FunctionTok{degree}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{5}\NormalTok{)), }
+                               \AttributeTok{levels =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+I chose the range for cost and degree based on the lab materials. I
+think a 5 degree polynomial is appropriately flexible and a degree 1
+polynomial is appropriately rigid.
+
+This was the last step before we can move on to tuning our models.
+
+\section{Tunning Models}\label{tunning-models}
+
+The main metric we will be using for tuning the models would be the area
+under the roc curve. We will sometimes also look at the accuracy and
+confusion matrix depending on different models.
+
+\subsection{Logistic Regression, LDA, and
+QDA}\label{logistic-regression-lda-and-qda-1}
+
+Recall that these are the models that do not need tuning since there is
+no hyperparameter involved. I have saved these just like I did for other
+models, the code can be found under \texttt{Final\ misc\ 231} file.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Fitting logreg }
+\CommentTok{\#water\_logreg\_tune \textless{}{-} fit\_resamples(}
+\CommentTok{\#  water\_logreg\_workflow,}
+\CommentTok{\#  resamples = water\_folds,}
+\CommentTok{\#  metrics = metric\_set(accuracy, roc\_auc),}
+\CommentTok{\#  control = control\_resamples(save\_pred = TRUE)}
+\CommentTok{\#)}
+
+\CommentTok{\#save(water\_logreg\_tune, file = "water\_logreg\_tune.rda")}
+
+\CommentTok{\# Fitting LDA}
+\CommentTok{\#water\_lda\_tune \textless{}{-} fit\_resamples(}
+\CommentTok{\#  water\_lda\_workflow,}
+\CommentTok{\#  resamples = water\_folds,}
+\CommentTok{\#  metrics = metric\_set(accuracy, roc\_auc),}
+\CommentTok{\#  control = control\_resamples(save\_pred = TRUE)}
+\CommentTok{\#)}
+
+\CommentTok{\#save(water\_lda\_tune, file = "water\_lda\_tune.rda")}
+
+\CommentTok{\# Fitting QDA}
+\CommentTok{\#water\_qda\_tune \textless{}{-} fit\_resamples(}
+\CommentTok{\#  water\_qda\_workflow,}
+\CommentTok{\#  resamples = water\_folds,}
+\CommentTok{\#  metrics = metric\_set(accuracy, roc\_auc),}
+\CommentTok{\#  control = control\_resamples(save\_pred = TRUE)}
+\CommentTok{\#)}
+
+\CommentTok{\#save(water\_qda\_tune, file = "water\_qda\_tune.rda")}
+\end{Highlighting}
+\end{Shaded}
+
+This code chunk is all commented out because, as mentioned these are
+saved and now all we have to do is load them
+
+\subsection{Elastic Net}\label{elastic-net-1}
+
+Just like the previous one, I have tuned the models and saved the
+results in a separate .rmd file. Here is the commented out code chunk
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#water\_en\_tune \textless{}{-} tune\_grid(}
+\CommentTok{\#  water\_en\_workflow,}
+\CommentTok{\#  resamples = water\_folds,}
+\CommentTok{\#  grid = water\_en\_grid}
+\CommentTok{\#)}
+
+\CommentTok{\#save(water\_en\_tune, file = "water\_en\_tune.rda")}
+\end{Highlighting}
+\end{Shaded}
+
+After tuning, I selected the best-performing model based on ROC AUC and
+finalized the workflow for evaluation on the training and test sets in
+the testing section.
+
+\subsection{Tree Based Models}\label{tree-based-models}
+
+Running this takes approximately 35-65 minutes. Therefore, the code
+chunk below is commented out.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#water\_rf\_tune \textless{}{-} tune\_grid(}
+\CommentTok{\#  water\_rf\_workflow,}
+\CommentTok{\#  resamples = water\_folds,}
+\CommentTok{\#  grid = water\_rf\_grid}
+\CommentTok{\#)}
+
+\CommentTok{\#save(water\_rf\_tune, file = "water\_rf\_tune.rda")}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{SVM}\label{svm-1}
+
+Running this model also took a long time and the code chunk is therefore
+commented out.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#water\_svm\_tune \textless{}{-} tune\_grid(}
+\CommentTok{\#  water\_svm\_workflow,}
+\CommentTok{\#  resamples = water\_folds,}
+\CommentTok{\#  grid = water\_svm\_grid}
+\CommentTok{\#)}
+
+\CommentTok{\#save(water\_svm\_tune, file = "water\_svm\_tune.rda")}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Loading the models}\label{loading-the-models}
+
+In this section we will be loading all the models that we saved in the
+above sections.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{load}\NormalTok{(}\StringTok{"water\_logreg\_tune.rda"}\NormalTok{)}
+\FunctionTok{load}\NormalTok{(}\StringTok{"water\_lda\_tune.rda"}\NormalTok{)}
+\FunctionTok{load}\NormalTok{(}\StringTok{"water\_qda\_tune.rda"}\NormalTok{)}
+
+\FunctionTok{load}\NormalTok{(}\StringTok{"water\_en\_tune.rda"}\NormalTok{)}
+
+\FunctionTok{load}\NormalTok{(}\StringTok{"water\_rf\_tune.rda"}\NormalTok{)}
+
+\FunctionTok{load}\NormalTok{(}\StringTok{"water\_svm\_tune.rda"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now that the models have been ready, we are ready to test the models. In
+the next section, we will see how we pick the best model from the tuned
+model and assess the performances on the training set and the testing
+set.
+
+\section{Assessing models on Training
+Set}\label{assessing-models-on-training-set}
+
+\subsection{Logistic Regression, LDA, and
+QDA}\label{logistic-regression-lda-and-qda-2}
+
+For the logistic regression we would like to make a confusion matrix on
+the training set.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_logreg\_tune) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{conf\_mat}\NormalTok{(}\AttributeTok{truth =}\NormalTok{ Potability, }\AttributeTok{estimate =}\NormalTok{ .pred\_class) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{(}\AttributeTok{type =} \StringTok{"heatmap"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-22-1} 
+
+}
+
+\caption{The confusion matrix shows the number of true positive classifications and true negative classifications. From this we can tell the logistic regression model did not perform very well.}\label{fig:unnamed-chunk-22}
+\end{figure}
+
+There were 3 true classifications that were correctly classified and
+1398 observations correctly falsely classified, we can tell that the
+model is doing better with the observations that are not potable and
+that might be because of the class imbalance. Below we will plot the
+area under the roc curve and see how it performed on the training set.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_logreg\_tune) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(}\AttributeTok{truth=}\NormalTok{Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-23-1} 
+
+}
+
+\caption{The graph below shows that the logistic regression performed as well as any random chance would. This is not a good area under the roc curve since it closely follows the random chance line.}\label{fig:unnamed-chunk-23}
+\end{figure}
+
+As we can see the area under the roc curve is close to 0.5 which means
+this is not a good model.
+
+I expect the LDA to perform similarly since it has similar
+restirictions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_lda\_tune) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{conf\_mat}\NormalTok{(}\AttributeTok{truth =}\NormalTok{ Potability, }\AttributeTok{estimate =}\NormalTok{ .pred\_class) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{(}\AttributeTok{type =} \StringTok{"heatmap"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-24-1} 
+
+}
+
+\caption{The confusion matrix shows the number of true positive classifications and true negative classifications. From this we can tell the logistic regression model did not perform very well.}\label{fig:unnamed-chunk-24}
+\end{figure}
+
+There were 5 true classifications that were correctly classified and
+1397 observations correctly negative classification, we can tell that
+the model is doing better with the observations that are not potable and
+that might be because of the class imbalance. Below we will plot the
+area under the roc curve and see how it performed on the training set.
+This model performed very similar to the logistic regression and means
+that it's area under the roc curve will be similar to the logistic
+regression, close to being the same as a random chance.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_lda\_tune) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(}\AttributeTok{truth=}\NormalTok{Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-25-1} 
+
+}
+
+\caption{The graph below shows that the LDA model performed as well as any random chance would. This is not a good area under the roc curve since it closely follows the random chance line.}\label{fig:unnamed-chunk-25}
+\end{figure}
+
+The area under the roc curve will be closer to 0.5 and this is not any
+better than the LDA.
+
+However, I think QDA will perform better because it releases the
+restrictions of having the same covariance. The only thing it assumes as
+same means.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_qda\_tune) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{conf\_mat}\NormalTok{(}\AttributeTok{truth=}\NormalTok{Potability, }\AttributeTok{estimate =}\NormalTok{.pred\_class) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{(}\StringTok{"heatmap"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-26-1} 
+
+}
+
+\caption{As we can see the QDA is performing a little beterr than the previous models. QDA tends to perform better with non linear data}\label{fig:unnamed-chunk-26}
+\end{figure}
+
+There are around 309 true positive classification out of the 894 Potable
+observations, and the model has correctly identified 1237 of the not
+potable observations correctly out of the 1398. The model does a better
+job at classifying the observations that are not Potable and this might
+be due to class imbalance.
+
+Let's see it's area under the roc curve, I expect it to be better than a
+random chance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_qda\_tune) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(}\AttributeTok{truth=}\NormalTok{Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-27-1} 
+
+}
+
+\caption{The area under the roc curve is doing a little better. Idealy we would want it to touch the upper left hand corner, making a right angle but this is still bettwe than a random chance.}\label{fig:unnamed-chunk-27}
+\end{figure}
+
+So far, the QDA model is the best for us. Next we will be seeing how the
+elastic net did after slecting the best tuned model.
+
+\subsection{Elastic net}\label{elastic-net-2}
+
+There are two hyperparameters to tune, and we select the best model
+using the select\_best() command. But before we do that let's see what
+the best models look like. The select\_best, choses the first model the
+show\_best would give us, therefore, it is useful to see the top 5
+models and how the hyperparameters differ for these
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{show\_best}\NormalTok{(water\_en\_tune, }\AttributeTok{metric =} \StringTok{"roc\_auc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0964}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1205}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0964}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1325}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1205}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0361}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1205}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.2771}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+penalty
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mixture
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.metric
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.estimator
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mean
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+std\_err
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.config
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0.01 & 0.8888889 & roc\_auc & binary & 0.5168982 & 5 & 0.0129071 &
+Preprocessor1\_Model081 \\
+0.01 & 1.0000000 & roc\_auc & binary & 0.5166760 & 5 & 0.0132633 &
+Preprocessor1\_Model091 \\
+0.01 & 0.7777778 & roc\_auc & binary & 0.5149138 & 5 & 0.0129258 &
+Preprocessor1\_Model071 \\
+0.01 & 0.6666667 & roc\_auc & binary & 0.5131635 & 5 & 0.0123211 &
+Preprocessor1\_Model061 \\
+0.01 & 0.5555556 & roc\_auc & binary & 0.5120800 & 5 & 0.0120031 &
+Preprocessor1\_Model051 \\
+\end{longtable}
+
+The best model has a penalty of 0.01 which was the least range we gave
+it and the mixture is around 0.8888889. This tells us it's some sort of
+a combination of lasso and ridge. Now we should save the best result and
+see how it performs on the training set.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_en\_best }\OtherTok{\textless{}{-}} \FunctionTok{select\_best}\NormalTok{(water\_en\_tune, }\AttributeTok{metric =} \StringTok{"roc\_auc"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Once we select the best models, we must finalize the workflow before we
+can fit it to the training or the testing set.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_en\_final\_wf }\OtherTok{\textless{}{-}} \FunctionTok{finalize\_workflow}\NormalTok{(water\_en\_workflow, water\_en\_best)}
+
+\NormalTok{water\_en\_final }\OtherTok{\textless{}{-}} \FunctionTok{fit}\NormalTok{(water\_en\_final\_wf,}
+                      \AttributeTok{data =}\NormalTok{ water\_train)}
+\end{Highlighting}
+\end{Shaded}
+
+Now we can look at the area under the roc curve:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_en\_final, }\AttributeTok{new\_data =}\NormalTok{ water\_train) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-31-1} 
+
+}
+
+\caption{This is slightly better than the logistic regression and LDA but still performs similar to a random chance. This is not a good model for us.}\label{fig:unnamed-chunk-31}
+\end{figure}
+
+Elastic Net is a regularized version of logistic regression that
+combines both L1 (Lasso) and L2 (Ridge) penalties. While this can help
+address issues of multicollinearity and variable selection, it still
+inherits the assumption of linearity between predictors and the log-odds
+of the response. In our case, the relationships between the features and
+water potability are likely to be non-linear and complex, which limits
+the effectiveness of Elastic Net. Consequently, we expect it to
+underperform compared to more flexible, non-parametric models such as
+Random Forests or Support Vector Machines, which can capture non-linear
+decision boundaries.
+
+\subsection{Random Forest}\label{random-forest-1}
+
+In this model there are three hyperparameters to be tuned. We will show
+the best 5 models like we did in the elastic net and then use
+select\_best() to choose the best model
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{show\_best}\NormalTok{(water\_rf\_tune, }\AttributeTok{metric =} \StringTok{"roc\_auc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"The best 5 models after tuning the three hyperparameters"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0610}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0732}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0732}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0976}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1341}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1220}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0366}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1220}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.2805}}@{}}
+\caption{The best 5 models after tuning the three
+hyperparameters}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+mtry
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+trees
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+min\_n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.metric
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.estimator
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mean
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+std\_err
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.config
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+mtry
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+trees
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+min\_n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.metric
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.estimator
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mean
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+std\_err
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.config
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+7 & 657 & 20 & roc\_auc & binary & 0.6736080 & 5 & 0.0067177 &
+Preprocessor1\_Model426 \\
+8 & 200 & 15 & roc\_auc & binary & 0.6730350 & 5 & 0.0057862 &
+Preprocessor1\_Model287 \\
+7 & 771 & 13 & roc\_auc & binary & 0.6729293 & 5 & 0.0073557 &
+Preprocessor1\_Model265 \\
+8 & 885 & 17 & roc\_auc & binary & 0.6727237 & 5 & 0.0058140 &
+Preprocessor1\_Model385 \\
+6 & 771 & 9 & roc\_auc & binary & 0.6727025 & 5 & 0.0073538 &
+Preprocessor1\_Model152 \\
+\end{longtable}
+
+The best model is when m is 7, number of trees is 657 and min\_n is 20.
+Thus, we save the best and finalize the workflow and see how it does on
+the training set. Recall that so far our best model is QDA.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_rf\_best }\OtherTok{\textless{}{-}} \FunctionTok{select\_best}\NormalTok{(water\_rf\_tune, }\AttributeTok{metric =} \StringTok{"roc\_auc"}\NormalTok{)}
+
+\NormalTok{water\_rf\_final\_wf }\OtherTok{\textless{}{-}} \FunctionTok{finalize\_workflow}\NormalTok{(water\_rf\_workflow, water\_rf\_best)}
+
+\NormalTok{water\_rf\_final }\OtherTok{\textless{}{-}} \FunctionTok{fit}\NormalTok{(water\_rf\_final\_wf,}
+                      \AttributeTok{data =}\NormalTok{ water\_train)}
+
+\FunctionTok{augment}\NormalTok{(water\_rf\_final, }\AttributeTok{new\_data =}\NormalTok{ water\_train) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(}\AttributeTok{truth=}\NormalTok{Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-33-1} 
+
+}
+
+\caption{It looks like the random forest is overfitting since it is giving us almost a right angle. However, remember that this is on the training set, and it would be reduced when we test it with the testing data set. This is a very good model which is handling non linear relationships very well. This is now our best model.}\label{fig:unnamed-chunk-33}
+\end{figure}
+
+Random Forest is an ensemble learning method that builds multiple
+decision trees and aggregates their predictions. It is known for its
+high flexibility and ability to capture complex, non-linear interactions
+in the data without requiring strong parametric assumptions. As a
+result, it often performs exceptionally well on training data.
+
+In our case, the Random Forest model achieved a perfect AUC score of
+1.00 on the training set, which indicates it is classifying the training
+observations with complete separation between the two classes. While
+this might seem ideal at first glance, it also raises concerns about
+overfitting. A perfect score on the training set suggests the model has
+likely memorized the data, including noise or spurious patterns that do
+not generalize well to unseen data.
+
+Therefore, while Random Forest shows promise due to its performance on
+the training set, we must evaluate it carefully on the testing set or
+through cross-validation to confirm that it can generalize well and
+avoid overfitting.
+
+Also, we would like to see the variable importance chart to see which
+variable the model thought was most important. However, we should see it
+after fitting it to the testing dataset.
+
+\subsection{SVMs}\label{svms}
+
+For SVM we have two hyperparameters to tune, note that this is done on a
+different recipe, a more simpler recipe, and we must be careful with how
+appropriate this model would be.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_svm\_tune }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{autoplot}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-34-1} 
+
+}
+
+\caption{The autoplot shows how different scvm models perform with different combination of hyperparameters.}\label{fig:unnamed-chunk-34}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{show\_best}\NormalTok{(water\_svm\_tune, }\AttributeTok{metric =} \StringTok{"roc\_auc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"The best SVM models with different hyperparameters"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1235}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0864}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0988}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1358}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1235}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0370}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1235}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.2716}}@{}}
+\caption{The best SVM models with different
+hyperparameters}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+cost
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+degree
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.metric
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.estimator
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mean
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+std\_err
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.config
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+cost
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+degree
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.metric
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.estimator
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mean
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+std\_err
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+.config
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1.0000000 & 4 & roc\_auc & binary & 0.5660713 & 5 & 0.0089137 &
+Preprocessor1\_Model18 \\
+0.1767767 & 4 & roc\_auc & binary & 0.5657945 & 5 & 0.0090355 &
+Preprocessor1\_Model17 \\
+0.0312500 & 4 & roc\_auc & binary & 0.5650778 & 5 & 0.0091220 &
+Preprocessor1\_Model16 \\
+1.0000000 & 2 & roc\_auc & binary & 0.5549789 & 5 & 0.0122227 &
+Preprocessor1\_Model08 \\
+1.0000000 & 5 & roc\_auc & binary & 0.5541711 & 5 & 0.0109170 &
+Preprocessor1\_Model23 \\
+\end{longtable}
+
+The best model seems to be when degree is 4 and cost is 1. We will now
+select the best and finalize the workflow
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_svm\_best }\OtherTok{\textless{}{-}} \FunctionTok{select\_best}\NormalTok{(water\_svm\_tune, }\AttributeTok{metric =} \StringTok{"roc\_auc"}\NormalTok{)}
+
+\NormalTok{water\_svm\_best\_fit }\OtherTok{\textless{}{-}} \FunctionTok{finalize\_workflow}\NormalTok{(water\_svm\_workflow, water\_svm\_best) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{fit}\NormalTok{(water\_train)}
+
+\NormalTok{water\_svm\_best\_fit }\SpecialCharTok{\%\textgreater{}\%}  
+  \FunctionTok{extract\_fit\_engine}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{plot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-36-1} 
+
+}
+
+\caption{The plot shows how the SVM is separating.}\label{fig:unnamed-chunk-36}
+\end{figure}
+
+The plot is not very promising, let's see it with a familiar metric of
+area under the curve.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{augment}\NormalTok{(water\_svm\_best\_fit, }\AttributeTok{new\_data =}\NormalTok{ water\_train) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(}\AttributeTok{truth=}\NormalTok{Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-37-1} 
+
+}
+
+\caption{Although the area under the roc curve is not very promising, it is doing better than a random chance}\label{fig:unnamed-chunk-37}
+\end{figure}
+
+Now we want to fit it on the testing set. So far, I think the best model
+we have is the random forest and then the SVM. Some might argue that QDA
+did better than SVM but QDA cannot be tuned and the recipe for SVM was
+simple. With a better recipe and ranges, we could build a better SVM
+model.
+
+\section{On the Testing Set}\label{on-the-testing-set}
+
+On the testing, we are the fit the best one or two models. As we saw the
+results on the training set were acquired by the random forest. The next
+best model would be either SVM or QDA. Since SVM is a model that can be
+tuned and because there it was based on a much simpler recipe we can see
+that SVM has much more potential to be a powerful model. Thus, we will
+be fitting random forest and SVM.
+
+\subsection{Random Forest}\label{random-forest-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Predict on the test set}
+\NormalTok{water\_rf\_test\_preds }\OtherTok{\textless{}{-}} \FunctionTok{augment}\NormalTok{(water\_rf\_final, }\AttributeTok{new\_data =}\NormalTok{ water\_test)}
+
+\CommentTok{\# Plot ROC curve}
+\NormalTok{water\_rf\_test\_preds }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(}\AttributeTok{truth =}\NormalTok{ Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-38-1} 
+
+}
+
+\caption{The area under the roc curve on the testing set is a doing better than random chance.}\label{fig:unnamed-chunk-38}
+\end{figure}
+
+On the training set, the Random Forest model yielded a near-perfect ROC
+curve, showing that it was able to distinguish between potable and
+non-potable water almost perfectly. However, when applied to the test
+set, its performance decreased noticeably, with the ROC curve showing a
+clear drop.
+
+This drop is expected and healthy: since the model had not seen the test
+data during training, its slightly reduced performance reflects how well
+it generalizes to new data. Despite the decline, the model still
+performs significantly better than random chance, indicating it has
+learned meaningful patterns and is a viable predictive model for water
+potability.
+
+Now we will graph a variable importance plot to see which variables the
+trees found most important.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_rf\_fit }\OtherTok{\textless{}{-}} \FunctionTok{extract\_fit\_engine}\NormalTok{(water\_rf\_final)}
+
+\FunctionTok{vip}\NormalTok{(water\_rf\_fit) }\SpecialCharTok{+} \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-39-1} 
+
+}
+
+\caption{The variable importance show that ph was a strong predictor of Potability. Close sencond was Sulfate. The least useful predictor was Organi_carbon.}\label{fig:unnamed-chunk-39}
+\end{figure}
+
+Now we will report their testing error. Since we have been working with
+the area under the roc curve, that is the metric we will use to see how
+the random forest performed in on the testing set.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_rf\_test\_preds }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_auc}\NormalTok{(}\AttributeTok{truth =}\NormalTok{ Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Area under the roc curve for the random forest"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}llr@{}}
+\caption{Area under the roc curve for the random forest}\tabularnewline
+\toprule\noalign{}
+.metric & .estimator & .estimate \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+.metric & .estimator & .estimate \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+roc\_auc & binary & 0.6659245 \\
+\end{longtable}
+
+The area under the roc curve is almost 0.7. This is better than 0.5,
+which is the area under the roc curve for models that do as good as a
+random chance.
+
+\subsection{SVM}\label{svm-2}
+
+Now we will fit the SVM on the testing set. I don't expect it to do
+better than the random forest but it's important to remember that this
+is a very simple model with a lot more potential to grow.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_svm\_test\_preds }\OtherTok{\textless{}{-}} \FunctionTok{augment}\NormalTok{(water\_svm\_best\_fit, }\AttributeTok{new\_data =}\NormalTok{ water\_test)}
+
+\CommentTok{\# Plot ROC curve}
+\NormalTok{water\_svm\_test\_preds }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_curve}\NormalTok{(}\AttributeTok{truth =}\NormalTok{ Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{autoplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{Final-Project_files/figure-latex/unnamed-chunk-41-1} 
+
+}
+
+\caption{The model is performing a little better than random chance.}\label{fig:unnamed-chunk-41}
+\end{figure}
+
+The curve shows decent separation ability between the two classes,
+although it doesn't quite match the performance of the random forest.
+However, unlike random forest, SVM is more robust to overfitting,
+particularly with proper regularization. Since our recipe for the SVM
+model was simpler and more generalizable, we expect it to perform better
+on unseen data compared to the overfit random forest.
+
+However, for this particular problem, the recipe for random forest was
+better. However, we would use both models to report the testing error.
+We will use the similar area under the roc curve metric.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_svm\_test\_preds }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{roc\_auc}\NormalTok{(}\AttributeTok{truth =}\NormalTok{ Potability, .pred\_1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Area under the roc curve for the SVM model"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}llr@{}}
+\caption{Area under the roc curve for the SVM model}\tabularnewline
+\toprule\noalign{}
+.metric & .estimator & .estimate \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+.metric & .estimator & .estimate \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+roc\_auc & binary & 0.5516884 \\
+\end{longtable}
+
+The area under the roc curve is nearly 0.6, a little less than the
+random forest but it is more than any random chance. While it did not
+reach the high area under the roc curve, the model maintained solid
+generalization performance. This confirms our earlier assumption that
+SVM's simpler recipe and strong regularization make it a more reliable
+and interpretable model when faced with new, unseen data.
+
+If we made the same model with a model complicated recipe including all
+predictors, we would increase the area under the roc curve. hile its
+predictive power is somewhat lower than the random forest on training
+data, it compensates by not losing as much performance on the testing
+set. This makes it a strong candidate for real-world application where
+generalization matters more than overfitting to training patterns.
+
+\section{Conclusion}\label{conclusion}
+
+Access to clean and safe drinking water is a fundamental human right,
+yet millions around the world still lack it. The goal of this project
+was to leverage machine learning techniques to predict water potability
+using physicochemical attributes of water samples. Our objective was not
+only to build accurate models but also to understand how different
+algorithms interpret and use the underlying features of water data to
+make predictions. By exploring multiple modeling approaches, we aimed to
+identify both strengths and limitations of each method in predicting
+whether a given sample of water is potable or not.
+
+Our process began with careful data preprocessing. Missing data was
+addressed using K-nearest neighbors (KNN) imputation---a widely used
+method that replaces missing values based on similarity to other
+observations. After cleaning and preparing the data, we split it into
+training and testing sets, created recipes, and used 5 fold cross
+validation.
+
+The classification models implemented in this study included logistic
+regression, linear and quadratic discriminant analysis (LDA and QDA),
+elastic net, random forest, and support vector machines (SVM). This
+diversity of models allowed for a holistic analysis and a meaningful
+comparison between linear, regularized, tree-based, and margin-based
+classifiers.
+
+During the training phase, the random forest emerged as the
+best-performing model. It achieved an almost perfect ROC curve and very
+high accuracy, thanks to its ability to capture complex nonlinear
+relationships and interactions among predictors. The performs of this
+model decreased during the testing set. While this decrease was
+expected, it highlighted a key tradeoff between fitting power and
+generalizability.
+
+In contrast, simpler models such as logistic regression and elastic net
+performed consistently but were limited by their linear assumptions.
+Elastic net in particular did not fare well due to the lack of clear
+linear separation in the data---something we suspected early on during
+exploratory data analysis.
+
+Interestingly, the support vector machine offered a compelling balance.
+The ROC curve and overall accuracy indicated that it had not overfit to
+the training data. Given the relatively simple preprocessing recipe and
+the ability to tune the cost parameter, the SVM model showed significant
+potential. It demonstrated that a margin-based method can handle this
+type of structured, tabular data well when properly tuned. A more
+complicated SVM model would be better in predicting the potability of
+water.
+
+Another valuable insight came from variable importance analysis.
+Features such as ph level, sulfate, and hardness emerged as some of the
+most influential variables across models. This provides useful
+information from a domain perspective---indicating which aspects of
+water quality have the most impact on potability. Knowing which
+variables play a key role in determining potability can inform water
+testing protocols, especially in low-resource environments where testing
+all variables may not be feasible.
+
+Looking forward, several extensions are possible. A larger and more
+balanced dataset could help all models perform better, particularly
+those like QDA that are sensitive to class imbalance and covariance
+estimation. Additionally, incorporating external environmental data
+(e.g., source of water, surrounding land use, climate variables) could
+improve the robustness and relevance of our models. A more complicated
+SVM model would perform better than the SVM we incorporated.
+
+In conclusion, this project not only demonstrated the power of machine
+learning in tackling real-world classification problems but also
+emphasized the importance of thoughtful model selection, validation, and
+interpretation. In the pursuit of ensuring safe drinking water through
+data, these tools serve as a step forward in blending environmental
+science with computational intelligence.
+
+\section{References.}\label{references.}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \href{https://ieeexplore.ieee.org/abstract/document/9137903/}{Radhakrishnan,
+  Neha, and Anju S. Pillai. ``Comparison of water quality classification
+  models using machine learning.'' 2020 5th international conference on
+  communication and electronics systems (ICCES). IEEE, 2020.}
+\item
+  \href{https://www.kaggle.com/datasets/adityakadiwal/water-potability}{Kaggle
+  Water Potability Dataset}
+\end{enumerate}
+
+\end{document}
