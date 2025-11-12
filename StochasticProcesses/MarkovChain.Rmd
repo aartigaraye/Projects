@@ -1,0 +1,1381 @@
+---
+title: "Homework 2"
+subtitle: "PSTAT 160B: Stochastic Processes In Continuous Time"
+author: "Aarti Garaye"
+date: "`r Sys.Date()`"
+output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Part 1: Question Given in Class
+
+$\textbf{Question 0:}$ Prove that exponential is implied by
+memorylessness. If 
+$$
+f(s+t) = \mathbb{P}(T_i > s+t | X_0 = i) = \mathbb{P}(T_i > s+t, T_i > s | X_0 = i)
+$$ 
+Then, 
+$$
+f(t) = \mathbb{P} (T_i > t | X_0 = i) \text{ and } f(s) = \mathbb{P}(T_i>s|X_0=i)
+$$
+That is, given $f$ is continuous and that $f(0) = 1$ and
+$f(t+s) = f(s)f(t)$ determine that there exists some constant,
+$q_i \in \mathbb{R_+}$, such that $f(t) = e^{-q_i t}$.
+
+$\textbf{Solution:}$
+
+The theorem to prove is: $T$ is a positive continuous random variable
+with the memoryless property, then $T \sim Exp(q_i)$.
+
+$\textit{Proof}$ Let $G$ be the CDF of $T$, and let
+$F(x) = \mathbb{P}(X > x) = 1 - G(x)$. The memoryless property says
+$f(t+s) = f(t)f(s)$, we want to show that only the exponential will
+satisfy this.
+
+Given:
+
+-   $f$ is continuous
+
+-   $f(t+s) = f(t)f(s)$
+
+-   $f(0) = 1$
+
+Base Case: Consider the case $s = t = 1$ then $t+s = 2$. Then, 
+$$
+f(t+s) = f(t)f(s)
+$$ 
+$$
+f(1+1) = f(1)f(1)
+$$ 
+$$
+f(2) = (f(1))^2
+$$ 
+Note that by induction, 
+$$
+f(n) = f(n \cdot 1) = f(1)^n
+$$ 
+where $n \in \mathbb{Z_+}$ Trying $s=t$, thus, gives us 
+$$
+f(2t) = f(t)^2, f(3t) = f(t)^3, ..., f(nt) = f(t)^n. 
+$$ 
+Similarly, let $t = s = \frac{1}{n}$. Then, 
+$$
+f(\frac{1}{n}+\frac{1}{n}) = f(\frac{1}{n})f(\frac{1}{n})
+$$ 
+$$
+f(\frac{2}{n}) = (f(\frac{1}{n}))^2
+$$ 
+Again, note that by induction, 
+$$
+f(\frac{n}{n}) = (f(\frac{1}{n}))^n \implies f(\frac{1}{n}) = (f(1))^{\frac{1}{n}}
+$$ 
+Therefore, 
+$$
+f(\frac{t}{2}) = f(t)^{\frac{1}{2}}, f(\frac{t}{3}) = f(t)^{\frac{1}{3}},..., f(\frac{t}{n}) = f(t)^{\frac{1}{n}}. 
+$$ 
+Combining the above two, we get 
+$$
+\forall n, f(\frac{m}{n}) = (f(\frac{1}{n}))^m = f(1)^{\frac{m}{n}} \text{ where } \frac{m}{n} \in \mathbb{Q}
+$$ 
+By definition for $x \in \mathbb{R}, \exists \{q_n\} s.t. q_n \in \mathbb{Q} s.t. q_n \stackrel{n \rightarrow \infty}{\rightarrow} x$.
+Since $\mathbb{Q}$ is dense in $\mathbb{R}$.
+Let $\{q_n\}$ be a sequence in $\mathbb{Q}$ converging to $x$. Then by continuity,
+$$
+\lim_{n \rightarrow \infty}f(q_n) = f(\lim_{n \rightarrow \infty}q_n)
+$$
+Thus,
+$$
+f(\lim_{n \rightarrow \infty}q_n) = f(x)
+$$
+Furthermore, multiplication is continuous. So,
+$$
+\lim_{n \rightarrow \infty} f(q_nt) = f(\lim_{n \rightarrow \infty} q_nt) = f(xt) = f(t)^x
+$$
+Let $t = 1$, Then,
+$$
+f(x) = f(1)^x
+$$
+We can define $f(1) := c$ for some constant $c$. Then
+$$
+f(x) = c^x
+$$
+Since $c = e^{\ln c}$,
+$$
+f(x) = c^x = (e^{\ln c})^x = e^{x\ln c} = e^{x \ln f(1)}
+$$
+Note, 
+$$
+f(1) = \mathbb{P} (T_i > t | X_0 = i) \text{ and } 0 \leq f(1) \leq 1
+$$
+This is a probability measure. One of the big/main axioms of probability say that the probability cannot be negative and it cannot be greater than 1. We know,
+$$
+f(t + (-t)) = f(t) \cdot f(-t) = f(t) \cdot f(t)^{-1} = 1
+$$
+$$
+\implies f(t) = \frac{1}{f(t)^{-1}} = \frac{1}{f(-t)}
+$$
+Now if we let $x=1$, we can see that $f(t1) = f(1)^t$ which looks very
+much like the exponential function. Thus, 
+$$
+f(t) = e^{t \ln{f(1)}}
+$$ 
+Let $q = \ln{f(1)}$. Then, 
+$$
+f(t) = e^{qt}
+$$ 
+From the above results, in order to fit into the axioms of probability $q$ must be negative. Thus,
+$$
+f(t) = e^{-qt}
+$$
+
+Generalizing it, we obtain: 
+$$
+f(t) = e^{q_i t}
+$$ 
+Thus, the constant $q_i$ s.t. $f(t) = e^{-qt}$ is $q = - \ln{f(1)}$.
+Therefore, only exponential can be memoryless. We can conclude that
+memorylessness implies exponential. $\blacksquare$
+
+\newpage
+
+# Part 2: 7.1-7.7, 7.11-7.12, 7.14
+
+$\textbf{7.1}$ A continuous-time Markov chain has generator matrix 
+$$
+\begin{aligned}
+\mathbf{Q} &=
+\begin{array}{c@{\;}c}
+    & \begin{array}{ccc} \hspace{2pt} a \hspace{4pt} & \hspace{2pt} b \hspace{4pt} & \hspace{2pt} c \end{array} \\[3pt]
+    \begin{array}{c} a \\ b \\ c \end{array} &
+    \left(
+    \begin{array}{ccc}
+        -1 & 1 & 0 \\
+        1 & -2 & 1 \\
+        2 & 2 & -4
+    \end{array}
+    \right)
+\end{array}
+\end{aligned}
+$$ 
+Exhibit (i) the transition matrix of the embedded Markov chain and
+(ii) the holding time parameter for each state.
+
+$\textbf{Solution:}$
+
+(i) To go from $Q$ to the transition matrix, $\widetilde{P}$, we divide
+    the absolute value of the diagonal values of $Q$ to everything else
+    in the row.
+
+$$
+\begin{aligned}
+\mathbf{\widetilde{P}} &=
+\begin{array}{c@{\;}c}
+    & \begin{array}{ccc} \hspace{2pt} a \hspace{4pt} & \hspace{2pt} b \hspace{4pt} & \hspace{2pt} c \end{array} \\[5pt]
+    \begin{array}{c} a \\ b \\ c \end{array} &
+    \left(
+    \begin{array}{ccc}
+        0 & 1 & 0 \\
+        \frac{1}{2} & 0 & \frac{1}{2} \\
+        \frac{1}{2} & \frac{1}{2} & 0
+    \end{array}
+    \right)
+\end{array}
+\end{aligned}
+$$
+
+(ii) The holding times are just the absolute value of the diagonal
+     entries of the $Q$ matrix. Thus, $q_a, q_b, q_c = \{1, 2, 4 \}$.
+
+\newpage
+
+$\textbf{7.2}$ A Markov chain on $\{1, 2, 3, 4 \}$ has nonzero
+transition rates $$
+q_{12} = q_{23} = q_{31} = q_{41} = 1 \text{  and  } q_{14} = q_{32} = q_{34} = q_{43} = 2.
+$$
+
+(a) Exhibit the (i) generator, (ii) holding time parameters, and (iii)
+    transition matrix of the embedded Markov chain.
+
+(b) If the chain is at state 1, how long on average will it take before
+    moving to a new state?
+
+(c) If the chain is at state 3, how long on average will it take before
+    moving to state 4?
+
+(d) Over the long term, what proportion of visits will be to state 2?
+
+$\textbf{Solution:}$
+
+(a) To find the generator matrix we can fill out the information given
+    to us. Since we know the diagonal entries are just $-1$ times the
+    sum of the off-diagonal entries for each row, the missing
+    information just become some basic equations solving. $$
+    \begin{aligned}
+    \mathbf{Q} &=
+    \begin{array}{c@{\;}c}
+    & \begin{array}{cccc} \hspace{2pt} 1 \hspace{4pt} & \hspace{2pt} 2 \hspace{4pt} & \hspace{2pt} 3 \hspace{2pt} & 4\end{array} \\[3pt]
+    \begin{array}{c} 1 \\ 2 \\ 3 \\ 4\end{array} &
+    \left(
+    \begin{array}{cccc}
+        \textbf{-3} & 1 & \textbf{0} & 2 \\
+        \textbf{0} & \textbf{-1} & 1 & \textbf{0} \\
+        1 & 2 & \textbf{-5} & 2 \\
+        1 & \textbf{0} & 2 & \textbf{-3}
+    \end{array}
+    \right)
+    \end{array}
+    \end{aligned}
+    $$ Note that the bolded text is the information we found from the
+    given. \newline As we did in the previous question, we can find the
+    $\widetilde{P}$ matrix as: $$
+    \begin{aligned}
+    \mathbf{\widetilde{P}} &=
+    \begin{array}{c@{\;}c}
+    & \begin{array}{cccc} \hspace{2pt} 1 \hspace{4pt} & \hspace{2pt} 2 \hspace{4pt} & \hspace{2pt} 3 & \hspace{2pt} 4\end{array} \\[3pt]
+    \begin{array}{c} 1 \\ 2 \\ 3 \\ 4\end{array} &
+    \left(
+    \begin{array}{cccc}
+        0 & \frac{1}{3} & 0 & \frac{2}{3} \\
+        0 & 0 & 1 & 0 \\
+        \frac{1}{5} & \frac{2}{5} & 0 & \frac{2}{5} \\
+        \frac{1}{3} & 0 & \frac{2}{3} & 0
+    \end{array}
+    \right)
+    \end{array}
+    \end{aligned}
+    $$ The holding time parameter are just the absolute value of the
+    diagonal entries of the $Q$ matrix. Thus,
+    $\{q_1, q_2, q_3, q_4\} = \{3, 1, 5, 3\}$.
+
+(b) The amount of time spent in one state is exponentially distributed.
+    Therefore, to answer this questions we want to find
+    $\mathbb{E}[T_i]$ which we know is $\frac{1}{q_i}$ since they are
+    exponentially distributed with parameter $q_i$. Since we want to
+    find the average amount of time spent in state 1,
+    $\mathbb{E}[T_1] = \frac{1}{q_1} = \frac{1}{3}$.
+
+(c) Similar to part b, the desired expectation is
+    $\mathbb{E}[T_{34}] = \frac{1}{q_{34}} = \frac{1}{2}$.
+
+(d) Over the long term, the proportions of visits to state 2 will be
+    given by the stationary distribution of the embedded markov chain.
+    The desired equation is $$
+    \psi \mathbf{\widetilde{P}} = \psi
+    $$ Therefore, the systems of equations are as follows $$
+    0\psi_1 + 0\psi_2 + \frac{1}{5}\psi_3 + \frac{1}{3}\psi_4 = \psi_1
+    $$ $$
+    \frac{1}{3}\psi_1 + 0\psi_2 + \frac{2}{5}\psi_3 + 0\psi_4 = \psi_2
+    $$ $$
+    0\psi_1 + 1\psi_2 + 0\psi_3 + \frac{2}{3}\psi_4 = \psi_3
+    $$ $$
+    \frac{2}{3}\psi_1 + 0\psi_2 + \frac{2}{5}\psi_3 + 0\psi_4 = \psi_4
+    $$ $$
+    \psi_1 + \psi_2 + \psi_3 + \psi_4 = 1
+    $$ Solving for $\psi$ using R, follow the code below:
+
+```{r, message=FALSE}
+library(Matrix)
+library(expm)
+
+A <- matrix(c(-1, 0, 1/5, 1/3,
+              1/3, -1, 2/5, 0,
+              0, 1, -1, 2/3,
+              2/3, 0, 2/5, -1,
+              1, 1, 1, 1), ncol=4,nrow=5, byrow = T)
+A
+b <- c(0,0,0,0, 1)
+
+pi <- qr.solve(A,b)
+names(pi) <- c('state.1', 'state.2', 'state.3', 'state.4')
+pi 
+```
+
+Thus, the long term proportion of visits to state two will be `r pi[2]`.
+
+\newpage
+
+$\textbf{7.3}$ A three-state Markov chain has distinct holding time
+parameters $a, b, \text{ and } c$. From each state, the process is
+equally likely to transition to the other two states. Exhibit the
+generator matrix and find the stationary distributions.
+
+$\textbf{Solution:}$ Starting with the generator matrix. $$
+\begin{aligned}
+\mathbf{Q} &=
+\begin{array}{c@{\;}c}
+    & \begin{array}{ccc} \hspace{2pt} a \hspace{4pt} & \hspace{2pt} b \hspace{4pt} & \hspace{2pt} c \end{array} \\[3pt]
+    \begin{array}{c} a \\ b \\ c \end{array} &
+    \left(
+    \begin{array}{ccc}
+        -a & \frac{a}{2} & \frac{a}{2} \\
+        \frac{b}{2} & -b & \frac{b}{2} \\
+        \frac{c}{2} & \frac{c}{2} & -c
+    \end{array}
+    \right)
+\end{array}
+\end{aligned}
+$$ Thus, the embedded transition matrix is as follows: $$
+\begin{aligned}
+\mathbf{\widetilde{P}} &=
+\begin{array}{c@{\;}c}
+    & \begin{array}{ccc} \hspace{2pt} a \hspace{4pt} & \hspace{2pt} b \hspace{4pt} & \hspace{2pt} c \end{array} \\[3pt]
+    \begin{array}{c} a \\ b \\ c \end{array} &
+    \left(
+    \begin{array}{ccc}
+        0 & \frac{1}{2} & \frac{1}{2} \\
+        \frac{1}{2} & 0 & \frac{1}{2} \\
+        \frac{1}{2} & \frac{1}{2} & 0
+    \end{array}
+    \right)
+\end{array}
+\end{aligned}
+$$ To find the stationary distribution we want to solve for $\pi$ in
+this equation, $\pi \mathbf{Q} = 0$ The system of equations we get from
+the expressions are: $$
+-a\pi_a +\frac{b}{2}\pi_b + \frac{c}{2}\pi_c = 0
+$$ $$
+\frac{a}{2}\pi_a -b\pi_b + \frac{c}{2}\pi_c = 0
+$$ $$
+\frac{a}{2}\pi_a +\frac{b}{2}\pi_b - c\pi_c = 0
+$$ $$
+\pi_a + \pi_b +\pi_c = 1
+$$ Solving these we get $$
+\pi = \Big(\frac{bc}{ac+bc+ab}, \frac{ac}{ac+bc+ab}, \frac{ab}{ac+bc+ab} \Big).
+$$
+
+\newpage
+
+$\textbf{7.4}$ During lunch hour, customers arrive at a fast-food
+restaurant at the rate of 120 customers per hour. The restaurant has one
+line, with three workers taking food orders at independent service
+stations. Each worker tales an exponentially distributed amount of
+time—on average 1 minute—to service a customer. Let $X_t$ denote the
+number of customers in the restaurant (in line and being serviced) at
+time $t$. The process $(X_t)_{t\geq 0}$ is a continuous time Markov
+chain. Exhibit the generator matrix.
+
+$\textbf{Solution:}$ Let $X_t$ be the number of customers at time $t$
+minutes. Therefore, $\lambda$, which is the birth rate or the arrival
+rate will be 2 customers per minute.
+
+We know the birth rate is going to increase by 1 or decrease by 1
+because since we assume the exponentially distributed random variables
+to be independent, the probability of two customers arriving at the same
+exact time and leaving at the same exact time is 0. Therefore, $$
+q_{i,i+1} = 2
+$$ Since each worker takes 1 minute, the death rate is $$
+q_{i,i-1} = q_{1,0} = 1
+$$ We know that when there are two customers there are two workers to
+accommodate that. Similarly when there are three customers there are
+three workers. However, when the fourth customer arrives and none of the
+workers are done servicing, the maximum rate will still be 3 since there
+are only three workers. Thus, $$
+q_{2,1} = 2 \text{ and } q_{3,2} = 3 \text{ and } q_{i,i-3} = 3
+$$ Then, $$
+\begin{aligned}
+\mathbf{Q} &=
+\begin{array}{c c}
+    & \begin{array}{cccccccccccc} 
+       \hspace{2pt} 0 \hspace{4pt} & \hspace{2pt} 1 \hspace{4pt} & \hspace{2pt} 2 \hspace{4pt} & \hspace{2pt} 3 \hspace{4pt} & \hspace{2pt} 4 \hspace{4pt} & \hspace{2pt} 5 \hspace{4pt} & \hspace{2pt} 6 \hspace{4pt} & \dots
+    \end{array} \\[3pt]
+    \begin{array}{c} 
+        0 \\ 1 \\ 2 \\ 3 \\ 4 \\ 5 \\ 6 \\ \vdots
+    \end{array} &
+    \left(
+    \begin{array}{cccccccccccc}
+        -2 & 2 & 0 & 0 & 0 & 0 & 0 & \dots \\
+        1 & -3 & 2 & 0 & 0 & 0 & 0 & \dots \\
+        0 & 2 & -4 & 2 & 0 & 0 & 0 & \dots \\
+        0 & 0 & 3 & -5 & 2 & 0 & 0 & \dots \\
+        0 & 0 & 0 & 3 & -5 & 2 & 0 & \dots \\
+        0 & 0 & 0 & 0 & 3 & -5 & 2 & \dots \\
+        0 & 0 & 0 & 0 & 0 & 3 & -5 & \dots \\
+        \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \dots & \ddots
+    \end{array}
+    \right)
+\end{array}
+\end{aligned}
+$$ It's an infinite matrix because there is no limit given in the
+question of how many customers can be in the system.
+
+\newpage
+
+$\textbf{7.5}$ For the fast-food restaurant chain of the previous
+exercise, assume that customers turn away from the store if all three
+service stations are busy. Let $Y_t$ denote the number of service
+stations busy at time $t$. Then, $(Y_t)_{t \geq 0}$ is a continuous-time
+Markov chain. Exhibit the generator matrix.
+
+$\textbf{Solution:}$ We just have to truncate the generator matrix from
+the preivous solution so that it's a 3x3 matrix. Thus, $$
+\begin{aligned}
+\mathbf{Q} &=
+\begin{array}{c@{\;}c}
+    & \begin{array}{cccc} \hspace{2pt} 0 \hspace{4pt} & \hspace{2pt} 1 \hspace{4pt} & \hspace{2pt} 2 \hspace{2pt} & 3\end{array} \\[3pt]
+    \begin{array}{c} 0 \\ 1 \\ 2 \\ 3\end{array} &
+    \left(
+    \begin{array}{cccc}
+        -2 & 2 & 0 & 0 \\
+        1 & -3 & 2 & 0 \\
+        0 & 2 & -4 & 2 \\
+        0 & 0 & 3 & -3
+    \end{array}
+    \right)
+\end{array}
+\end{aligned}
+$$
+
+\newpage
+
+$\textbf{7.6}$ A Markov chain $(X_t)_{t \geq 0}$ on $\{1,2,3,4\}$ has a
+generator matrix $$
+\mathbf{Q} = 
+\left(
+    \begin{array}{cccc}
+        -2 & 1  & 1  & 0  \\
+        1  & -3 & 1  & 1  \\
+        2  & 2  & -4 & 0  \\
+        1  & 2  & 3  & -6
+    \end{array}
+\right).
+$$ Use technology needed for the following:
+
+(a) Find the long term proportion of the time that the chain visits
+    state 1.
+
+(b) For the chain started in state 2, find the long term probability
+    that the chain visits state 3.
+
+(c) Find $P(X_1 = 3 | X_0 = 1)$.
+
+(d) Find $P(X_5 = 1, X_2 = 4 | X_1 = 3)$.
+
+$\textbf{Solution:}$
+
+(a) To find the long term proportion of time that the chain visits state
+    1 can be found by using the `expm` function. Since the $P(t)$
+    function is just $e^{t\mathbf{Q}}$, we can use R to solve part a.
+    Since we are looking at the long term proportions, let $t$ be equal
+    $1000$.
+
+```{r}
+Q1 <- matrix(c(-2, 1, 1, 0,
+               1, -3, 1, 1,
+               2, 2, -4, 0,
+               1, 2, 3, -6), nrow=4, ncol=4, byrow = T)
+Q1
+
+P <- function(t){expm(t*Q1)}
+P(1000)
+```
+
+From the above code the long term proportion of time the chain visits
+state 1, is just `r P(1000)[1,1]`.
+
+(b) To find the long term probability that the chain visits state 3, is the limiting distribution for $\psi \mathbf{\widetilde{P}} = \psi$. The matrix is as follows.
+```{r}
+Ax <- matrix(c(-1, 1/3, 1/2, 1/6,
+               1/2, -1, 1/2, 1/3,
+               1/2, 1/3, -1, 1/2,
+               0, 1/3, 0, -1,
+               1, 1, 1, 1), nrow = 5, ncol = 4, byrow = T)
+
+Ax
+
+bx <- c(0, 0, 0, 0, 1)
+pix <- qr.solve(Ax, bx)
+pix
+```
+Thus, the probability is `r pix[3]`.
+
+(c) The desired probability is given by the expm function. Remember,
+    this is not asking for the long term probability, therefore let
+    $t = 1$.
+
+```{r}
+P(1)
+P(1)[1,3]
+```
+
+Thus, the desired probability is `r P(1)[1,3]`.
+
+(d) Similar to part c, however, this time we would want to use the
+    definition of conditional probability in a markov chain. Therefore,
+    the desired probability is:
+
+```{r}
+P(3)[4,1] * P(1)[3,4]
+```
+
+Thus, our answer is `r P(3)[4,1] * P(1)[3,4]`.
+
+\newpage
+
+$\textbf{7.7}$ A Markov chain has generator matrix 
+$$
+\mathbf{Q} = 
+\left(
+    \begin{array}{ccc}
+        -1 & 1  & 0   \\
+        0  & -2 & 2   \\
+        3  & 0  & -3
+    \end{array}
+\right).
+$$
+
+(a) Exhibit the Kolmogorov backwards equations.
+
+(b) Find the transition matrix by diagonalizing the generator and
+    finding the matrix exponential.
+
+(c) Find the transition matrix function using a symbolic software
+    systems such as $\textit{Wolfram Alpha}$.
+
+$\textbf{Solution:}$
+
+(a) The Kolmogorov backwards equation says: 
+$$
+P'(t) = QP(t)
+$$ 
+We know what $\mathbf{Q}$ is, therefore, the equation in terms of matrices would be: 
+$$
+    \mathbf{Q} = 
+    \left(
+    \begin{array}{ccc}
+        -1 & 1  & 0   \\
+        0  & -2 & 2   \\
+        3  & 0  & -3
+    \end{array}
+    \right) \cdot \mathbf{P(t)} = 
+    \left(
+    \begin{array}{ccc}
+        P_{11}(t) & P_{12}(t)  & P_{13}(t)   \\
+        P_{21}(t)  & P_{22}(t) & P_{23}(t)   \\
+        P_{31}(t)  & P_{32}(t)  & P_{33}(t)
+    \end{array}
+    \right)
+$$ 
+Doing the matrix multiplication the set of equations we get are as follows: 
+$$
+    \begin{aligned}
+    P'_{11}(t) = -1P_{11}(t) + 0P_{12}(t)  + 3P_{13}(t) \\
+    P'_{12}(t) = 1P_{11}(t)  + -2P_{12}(t) + 0P_{13}(t) \\
+    P'_{13}(t) = 0P_{11}(t)  + 2P_{12}(t)  + -3P_{13}(t) \\
+    P'_{21}(t) = -1P_{21}(t) + 0P_{22}(t)  + 3P_{23}(t) \\
+    P'_{22}(t) = 1P_{21}(t)  + -2P_{22}(t) + 0P_{23}(t) \\
+    P'_{23}(t) = 0P_{21}(t)  + 2P_{22}(t)  + -3P_{23}(t) \\
+    P'_{31}(t) = -1P_{31}(t) + 0P_{32}(t)  + 3P_{33}(t) \\
+    P'_{32}(t) = 1P_{31}(t)  + -2P_{32}(t) + 0P_{33}(t) \\
+    P'_{33}(t) = 0P_{31}(t)  + 2P_{32}(t)  + -3P_{33}(t).
+    \end{aligned}
+$$
+
+(b) The formula for diagonalizing the matrix is: 
+$$
+    \mathbf{Q} = VDV^{-1}
+$$ 
+where $D$ is a matrix with eigenvalues of $\mathbf{Q}$ as its diagonal entries and $V$ is just the matrix with with eigenvalues as the column entries. To solve for the eigenvalues, we solve for $\lambda$ in this equation: 
+$$
+    det(\mathbf{Q} - \lambda I) = 0
+$$ 
+We get the following eigenvalues: 
+$$
+    \lambda_1 = 0, \lambda_2 = -3 - \sqrt{2}i, \lambda_3 = -3 + \sqrt{2}i
+$$ 
+Plugging these $\lambda$s in the equation gives us the following eigenvectors:
+$$
+    v_1 = \begin{bmatrix} 1\\  1 \\ 1 \end{bmatrix}, v_2 = \begin{bmatrix} \frac{-i\sqrt{2}}{3}\\ \frac{1}{3}(-2 +2i\sqrt{2}) \\ 1 \end{bmatrix}, v_3 = \begin{bmatrix}\frac{i\sqrt{2}}{3} \\ \frac{1}{3}(-2-2i\sqrt{2}) \\ 1 \end{bmatrix}
+$$ 
+Thus, 
+$$
+    \mathbf{V} = 
+    \frac{1}{3}\left(
+    \begin{array}{ccc}
+        3 & -i\sqrt{2}  & i\sqrt{2}   \\
+        3  & 2i(\sqrt{2} + i) & -2i(\sqrt{2}- i)   \\
+        3  & 3  & 3
+    \end{array}
+    \right)
+$$ 
+$$
+    \mathbf{D} = 
+    \left(
+    \begin{array}{ccc}
+        0 & 0  & 0   \\
+        0  & -3-i\sqrt{2} & 0   \\
+        0  & 0  & -3+\sqrt{2}
+    \end{array}
+    \right)
+$$ 
+$$
+    \mathbf{V^{-1}} = 
+    \frac{1}{44}\left(
+    \begin{array}{ccc}
+        24 & 12  & 8   \\
+        3i(5\sqrt{2} + 4i)  & -3i(3\sqrt{2}-2i) & -6i(\sqrt{2}+3i)   \\
+        -3i(5\sqrt{2} - 4i)  & 3i(3\sqrt{2}+2i)  & 6i(\sqrt{2}-3i)
+    \end{array}
+    \right)
+$$ 
+Thus, the transition matrix, $P(t)$, is given by $Ve^{tD}V^{-1}$, by the proof in class. 
+$$
+P(t) = \frac{1}{3}
+\left(
+\begin{array}{ccc}
+        3 & -i\sqrt{2}  & i\sqrt{2}   \\
+        3  & 2i(\sqrt{2} + i) & -2i(\sqrt{2}- i)   \\
+        3  & 3  & 3
+\end{array}
+\right)
+\cdot 
+e^{ t \left(  
+\begin{array}{ccc}
+        0 & 0  & 0   \\
+        0  & -3-i\sqrt{2} & 0   \\
+        0  & 0  & -3+\sqrt{2}
+\end{array}
+\right) }
+\cdot
+$$
+$$
+\frac{1}{44}
+\left(
+\begin{array}{ccc}
+        24 & 12  & 8   \\
+        3i(5\sqrt{2} + 4i)  & -3i(3\sqrt{2}-2i) & -6i(\sqrt{2}+3i)   \\
+        -3i(5\sqrt{2} - 4i)  & 3i(3\sqrt{2}+2i)  & 6i(\sqrt{2}-3i)
+\end{array}
+\right) 
+$$
+Remember that when expatiating a matrix, we enponentiate the diagonal entries. Therefore,
+$$ 
+P(t) =
+\frac{1}{3}
+\left(
+\begin{array}{ccc}
+        3 & -i\sqrt{2}  & i\sqrt{2}   \\
+        3  & 2i(\sqrt{2} + i) & -2i(\sqrt{2}- i)   \\
+        3  & 3  & 3
+\end{array}
+\right) 
+\cdot 
+\left(
+\begin{array}{ccc}
+        1 & 0  & 0   \\
+        0  & e^{t(-3-i\sqrt{2})} & 0   \\
+        0  & 0  & e^{t(-3+\sqrt{2})}
+\end{array}
+\right) 
+\cdot
+$$
+$$
+\frac{1}{44}
+\left(
+\begin{array}{ccc}
+        24 & 12  & 8   \\
+        3i(5\sqrt{2} + 4i)  & -3i(3\sqrt{2}-2i) & -6i(\sqrt{2}+3i)   \\
+        -3i(5\sqrt{2} - 4i)  & 3i(3\sqrt{2}+2i)  & 6i(\sqrt{2}-3i)
+\end{array}
+\right) 
+$$
+To simplify, we should move on to part c.
+
+(c) Follow the screenshot below to see the Matrix exponential. 
+
+![](/Users/aarti/Downloads/MatrixExp.png){width='50%'}
+
+However, when we try using the online calculator to solve the equation from part b, we get different answers. 
+
+![](/Users/aarti/Downloads/MatrixExp2.png){width='50%'}
+
+Note, that the two matrices are different. The possible scenarios why this might be happening is that there must be some typo in the question. 
+
+To counter this, we should try doing this in R and finding the transition matrix. 
+```{r}
+library(expm)
+
+Q2 <- matrix(c(-1, 1, 0,
+               0, -2, 2,
+               3, 0, -3), nrow=3, ncol=3, byrow = T)
+Q2
+
+P2 <- function(t) expm(t*Q2)
+P2(2.5)
+```
+
+```{r}
+library(MASS)
+eigenQ2 <- eigen(Q2)
+eigenQ2
+
+diagonalQ2 <- diag(eigen(Q2)$values)
+diagonalQ2
+
+Pinv <- ginv(eigenQ2$vectors)
+Pinv
+
+Solved <- eigenQ2$vectors %*% diag(exp(diag(diagonalQ2))) %*% Pinv
+Solved
+```
+Another way of doing that, is setting $t=1$ and using the `expm`. 
+```{r, warning=FALSE}
+# Define the generator matrix Q
+Q <- matrix(c(-1, 1, 0,
+               0, -2, 2,
+               3, 0, -3), nrow=3, ncol=3, byrow = T)
+
+
+t <- 1  # Define time t
+P_t <- expm(Q * t)  # Matrix exponential
+
+# Print the transition probability matrix P(t)
+print(P_t)
+print(rowSums(P_t))
+```
+As we can see the rows sum to $1$ which should be the case since the transition matrix is a probability matrix. Let's prove this is right by getting the generator matrix, $Q$, in R
+
+```{r}
+# Define the transition function P(t)
+P_t <- matrix(c(0.5616287, 0.2769324, 0.1614389,
+                0.4843166, 0.2846964, 0.2309870,
+                0.5886388, 0.2421583, 0.1692029), nrow = 3, byrow = TRUE)
+
+# Define time t
+t <- 1  # Assuming P(t) is given for t = 1
+
+# Compute eigenvalues and eigenvectors
+eig <- eigen(P_t)
+
+# Extract V (eigenvectors) and Lambda (diagonal matrix of eigenvalues)
+V <- eig$vectors
+Lambda <- diag(eig$values)
+
+# Compute D = log(Lambda) / t (element-wise log on the diagonal elements)
+D <- diag(log(diag(Lambda)) / t)
+
+# Compute generator matrix Q
+Q <- V %*% D %*% solve(V)
+
+# Print Q
+print(Q)
+```
+Notice that this is a pretty close approximation to the generator matrix $Q$. 
+
+\newpage
+
+$\textbf{7.11}$ Let $A$ be a square matrix. Show that
+$$
+\frac{d}{dt} e^{tA} = Ae^{tA} = e^{tA}A.
+$$
+
+$\textbf{Solution:}$ 
+
+$\textit{Proof}$ Given that $A$ is a square matrix, we can use the Taylor series expansion to write
+$$
+e^{tA} = \sum_{n=0}^{\infty} \frac{(tA)^n}{n!}
+$$
+$$
+= I + tA + \frac{t^2A^2}{2!} + ...
+$$
+Then,
+$$
+\frac{d}{dt}e^{tA} = \frac{d}{dt}\Big(\sum_{n=0}^{\infty} \frac{(tA)^n}{n!} \Big)
+$$
+$$
+= \frac{d}{dt}\Big(I + tA + \frac{t^2A^2}{2!} + \frac{t^3A^3}{3!} + \frac{t^4A^4}{4!} + ... \Big)
+$$
+$$
+= 0 + A + \frac{2!(2tA^2)}{(2!)^2} + \frac{3!(3t^2A^3)}{(3!)^2} + \frac{3!(4t^3A^4)}{(4!)^2} + ...
+$$
+$$
+= A + \frac{tA^2}{1!} + \frac{t^2A^3}{2!} + \frac{t^3A^4}{3!} + ...
+$$
+$$
+= A \Big(\frac{tA}{1!} + \frac{t^2A^2}{2!} + \frac{t^3A^3}{3!} + ... \Big)
+$$
+$$
+= A \Big(\sum_{n=0}^{\infty} \frac{(tA)^n}{n!} \Big)
+$$
+$$
+= Ae^{tA}
+$$
+Similarly note that, 
+$$
+\frac{d}{dt}e^{tA} = 0 + A + \frac{2!(2tA^2)}{(2!)^2} + \frac{3!(3t^2A^3)}{(3!)^2} + \frac{3!(4t^3A^4)}{(4!)^2} + ...
+$$
+$$
+= \Big(\frac{tA}{1!} + \frac{t^2A^2}{2!} + \frac{t^3A^3}{3!} + ... \Big) A
+$$
+$$
+= \Big(\sum_{n=0}^{\infty} \frac{(tA)^n}{n!} \Big) A
+$$
+$$
+= e^{tA}A
+$$
+$\blacksquare$
+
+
+\newpage
+
+$\textbf{7.12}$ The following result from linear algebra relates the determinant and trace of a matrix $A$: 
+$$
+det(e^A) = e^{tr A}.
+$$
+Prove this for the case that $A$ is diagonalizable. 
+
+$\textbf{Solution:}$ 
+
+In linear algebra $\textbf{trace}$ of a square matrix $A$, denoted $tr(A)$, is the sum of elements on its diagonal, $a_{11} + a_{22} + ... + a_{nn}$ for $A$ to be $n \times n$. For the diagonal matrix, the trace will be the sum of the eigenvalues.
+
+Given $A$ is diagonalizable:
+$$
+A = VDV^{-1}
+$$
+Note that,
+$$
+e^A = \sum_{n=0}^{\infty}\frac{(VDV^{-1})^n}{n!}
+$$
+$$
+= I + VDV^{-1} + \frac{VDV^{-1}VDV^{-1}}{2!} + \frac{VDV^{-1}VDV^{-1}VDV^{-1}}{3!} + ...
+$$
+$$
+= I + VDV^{-1} + \frac{VD^2V^{-1}}{2} + \frac{VD^3V^{-1}}{3!} + ... 
+$$
+$$
+= V \Big(\sum_{n=0}^{\infty}\frac{D^n}{n!} \Big) V^{-1}
+$$
+Then,
+$$
+e^A = e^{VDV^{-1}} = Ve^{D}V^{-1}
+$$
+Note that every matrix has a Jordan normal form and that the determinant of a triangular matrix, like $D$, is the product of its diagonals. Thus,
+$$
+\det(e^A) = \det(e^{VDV^{-1}}) = \det(Ve^DV^{-1})
+$$
+$$
+= \det(V)\det(e^D)\det(V^{-1})
+$$
+$$
+= \det(e^D)
+$$
+Since we can exponentiation the diagonal matrix and by the Jordan normal, we can sat:
+$$
+\det(e^D) = e^{\lambda_1} \cdot e^{\lambda_2} \cdot ... \cdot e^{\lambda_n}
+$$
+$$
+= e^{(\lambda_1 + ... + \lambda_n)}
+$$
+Since it's a sum of the eigenvalues this equals,
+$$
+= e^{tr(A)}
+$$
+$\blacksquare$
+
+\newpage
+
+$\textbf{7.14}$ For the Markov chain with transition rate graph shown in the Figure, find
+
+(a) The generator matrix
+
+(b) The stationary distribution of the continuous-time Markov chain,
+
+(c) The transition matrix of the embedded chain,
+
+(d) The stationary distribution of the embedded chain.
+
+![](/Users/aarti/Downloads/hw2ques14.png){width="50%"}
+
+$\textbf{Solution:}$
+
+(a) The generator matrix from the figure is as follows:
+$$
+\mathbf{Q} = 
+\left(
+    \begin{array}{ccc}
+        -4 & 4  & 0   \\
+        1  & -7 & 6   \\
+        6  & 2  & -8
+    \end{array}
+\right).
+$$
+
+(b) The stationary distribution can be solved by the equation: $\pi \mathbf{Q} = 0$. The equations are as follows:
+$$
+-4\pi_1 + \pi_2 + 6\pi_3 = 0
+$$
+$$
+4\pi_1 + -7\pi_2 + 2\pi_3 = 0
+$$
+$$
+0\pi_1 + 6\pi_2 + -8\pi_3 = 0
+$$
+$$
+\pi_1 + \pi_2 + \pi_3 = 1
+$$
+Using R, we can solve this: 
+```{r}
+A2 <- matrix(c(-4, 1, 6,
+               4, -7, 2,
+               0, 6, -8,
+               1, 1, 1), ncol=3,nrow=4, byrow = T
+)
+
+A2
+
+b2 <- c(0, 0, 0, 1)
+
+pi2 <- qr.solve(A2, b2)
+pi2
+```
+Thus, $(\pi_1, \pi_2, \pi_3) = (0.44, 0.32, 0.24)$.
+
+(c) The transition matrix for the embedded chain is as follows:
+$$
+\mathbf{\widetilde{P}} = 
+\left(
+    \begin{array}{ccc}
+        0 & 1  & 0   \\
+        \frac{1}{7}  & 0 & \frac{6}{7}   \\
+        \frac{3}{4}  & \frac{1}{4}  & 0
+    \end{array}
+\right).
+$$
+
+(d) The stationary distribution of the embedded chain can be solved using this equation: $\psi \mathbf{\widetilde{P}} = \psi$. The equations are as follows:
+$$
+0\psi_1 + \frac{1}{7}\psi_2 + \frac{3}{4}\psi_3 = \psi_1
+$$
+$$
+1\psi_1 + 0\psi_2 + \frac{1}{4}\psi_3 = \psi_2
+$$
+$$
+0\psi_1 + \frac{6}{7}\psi_2 + 0\psi_3 = \psi_3
+$$
+$$
+\psi_1 + \psi_2 + \psi_3 = 1
+$$
+Using R, we can solve this:
+```{r}
+A3 <- matrix(c(-1, 1/7, 3/4,
+               1, -1, 1/4,
+               0, 6/7, -1,
+               1, 1, 1), nrow=4, ncol=3, byrow = T)
+
+A3
+b3 <- c(0,0,0,1)
+
+pi3 <- qr.solve(A3, b3)
+pi3
+```
+Thus, $(\psi_1, \psi_2, \psi_3) = (0.2972973, 0.3783784, 0.3243243)$.
+
+\newpage
+
+# Part 3: 7.19, 7.20, 7.23, 7.26, 7.33, 7.35, 7.39
+
+$\textbf{7.19}$ Taxis arrive at a taxi stand according to a Poisson Process with parameter $\lambda$. Customers arrive, independently of taxis, at rate $\mu$. If there are no taxis when a customer arrives at the stand they will leave. Assume that $\lambda < \mu$. What is the long term probability that the arriving customer gets a taxi?
+
+$\textbf{Solution:}$ 
+
+Let $X_t$ denote the number of taxis arriving at the stand at time $t$. From the question, we know $X_t \sim PP(\lambda)$, the difference/jump is only by 1 given by the property of stationary increments of the Poisson Process.
+
+From the lecture we know that Poisson Process is a type of continuous time Markov chain. Thus, we can refer to the arrival of taxis as the birth rate which is 1. 
+
+Furthermore, we know that no two customers are gonna arrive at the exact same time and get in the taxi and the taxis leave at the same time. Essentially that probability is just zero. Thus, the death rates i.e. rates at which the taxis leave is also 1. 
+
+The taxi service or the stand is just one type of service, there are no other type of transportation we are modelling. Therefore, we can declare this to be a $M/M/1$ queue which is a birth-and-death with constant birth and death rates. 
+
+Thus the constant birth rate is $\lambda_1 = \lambda$ and $\mu_1 = \mu$. For the stationary distribution,
+$$
+\pi_k = \pi_0 \prod_{i=1}^{k} \frac{\lambda}{\mu} 
+$$
+$$
+= \pi_0 \Big(\frac{\lambda}{\mu} \Big)^k, \text{ for } k = 0, 1, 2, ...
+$$
+with,
+$$
+\pi_0 = \Big(\sum_{k=0}^{\infty} \Big(\frac{\lambda}{\mu} \Big)^{-1} \Big)
+$$
+$$
+= 1 - \frac{\lambda}{\mu}
+$$
+Provided that $\lambda < \mu$, 
+$$
+\pi_k = \Big(1 - \frac{\lambda}{\mu} \Big) \Big(\frac{\lambda}{\mu} \Big)^k \text{ for } k = 0, 1, 2, ...
+$$
+Thus, for $\lambda < \mu$, the stationary distribution is a geometric distribution on $\{0, 1, ...\}$ with parameter $1 - \frac{\lambda}{\mu}$.
+
+\newpage
+
+$\textbf{7.20}$ The $M/M/\infty$ queue has infinitely many servers. Show that the limiting distribution is Poisson and find the mean number of customers in the system.
+
+$\textbf{Solution:}$ 
+
+Let $X_t$ denote the number of customers in the system at time $t$. A central result in queuing theory is Little's formula, which is:
+
+In a queuing system, let $L$ denote the long term average number of customers in the system, $\lambda$ the rate of arrivals, and $W$ the long term average time that the customer is in the system. Then,
+$$
+L = \lambda W
+$$
+The $M/M/\infty$ queue has birth rate intensity $\lambda$ and the death rate $\mu$. The stationary distribution is:
+$$
+\pi_k = \pi_0 \prod_{i=1}^{k}\frac{\lambda}{i\mu} = \pi_0 \Big(\frac{\lambda}{\mu} \cdot \frac{\lambda}{2\mu} \cdot \frac{\lambda}{3\mu} \cdot ... \cdot \frac{\lambda}{k\mu} \Big)
+$$
+$$
+= pi_0 \frac{(\frac{\lambda}{\mu})^k}{k!} \text{ for } k = 0, 1, ..., N
+$$
+with,
+$$
+\pi_0 = \Big(\sum_{k=0}^{N}\prod_{i=1}^k\frac{\lambda_{i-1}}{i\mu}\Big) = \Big(\sum_{k=0}^{N}\frac{(\frac{\lambda}{\mu})^k}{k!}\Big)^{-1}
+$$
+The distribution is a truncated Poisson distribution on $\{0, 1, ..., N\}$ with parameter $\frac{\lambda}{\mu}$. For large $N$, which in our case is true, the distribution is an approximate Poisson distribution and the long term expected number of customers in the system is $\frac{\lambda}{\mu}$.
+
+\newpage
+
+$\textbf{7.23}$ A facility has four machines, with two repair workers to maintain them. Individual machines fail on average every 10 hours. It takes an individual worker on average 4 hours to fix the machine. Repair and failure times are independent and exponentially distributed. 
+
+(a) Find the generator matrix
+
+(b) In the long term, how many machines are typically operational?
+
+(c) If all four machines are initially working, find the probability that only two machines are working after 5 hours.
+
+$\textbf{Solution:}$
+
+Let $X_t$ be the number of broken machines at time $t$. The system can be in four states $\{0, 1, 2, 3, 4\}$ which correspond to the number of working machines. A single machine is repaired at rate of $\frac{1}{4}$, so when both workers are working, the repair rate would be $\frac{1}{4} \cdot 2 = \frac{1}{2}$. However, this is only true when two or more machines are broken.
+
+Machines break at the rate of $\frac{1}{10}$ independently so when 2 or 3 or 4 machines are active, the failure rates are $\frac{1}{5}, \frac{3}{10}, \text{ and } \frac{2}{5}$ respectively. 
+
+(a) Therefore, the $\mathbf{Q}$ matrix looks like:
+$$
+\mathbf{Q} = 
+\left(
+    \begin{array}{ccccc}
+        -\frac{1}{2} & \frac{1}{2}  & 0  & 0 & 0\\
+        \frac{1}{10}  & -\frac{3}{10} & \frac{1}{2} & 0 & 0\\
+        0  & \frac{1}{5} & -\frac{7}{10} & \frac{1}{2} & 0 \\
+        0  & 0 & \frac{3}{10} & - \frac{11}{20} & \frac{1}{4}\\
+        0  & 0  & 0 & \frac{2}{5} & \frac{-2}{5}
+    \end{array}
+\right).
+$$
+(b) To find the long term probability of how many machines are typically operational we want to find the stationary distribution which can be found using $\pi \mathbf{Q} = 0$ and use the formula for global balance. 
+The systems of equations are as follows:
+$$
+-\frac{1}{2}\pi_1 + \frac{1}{10}\pi_2 = 0
+$$
+$$
+\frac{1}{2}\pi_1 - \frac{3}{10}\pi_2 + \frac{1}{5}\pi_3= 0
+$$
+$$
+\vdots
+$$
+Using R, we can solve this:
+```{r}
+A4 <- matrix(c(-1/2, 1/10, 0, 0, 0,
+               1/2, -3/5, 1/5, 0, 0,
+               0, 1/2, -7/10, 3/10, 0,
+               0, 0, 1/2, -11/20, 2/5,
+               0, 0, 0, 1/4, -2/5,
+               1, 1, 1, 1, 1), nrow = 6, ncol = 5, byrow = T)
+A4
+
+b4 <- c(0, 0, 0, 0, 0, 1)
+
+pi4 <- qr.solve(A4, b4)
+pi4
+```
+Thus, $(\pi_0, \pi_1, \pi_2, \pi_3, \pi_4) = (0.01910068, 0.09550338, 0.23875846, 0.39793076, 0.24870673)$.
+
+The global balance equation is given by 
+$$
+\sum_{i\neq j} \pi_i q_{ij} = \pi_j q_j, \text{ for all }j
+$$
+This gives,
+$$
+0\pi_0 + 1\pi_1 + 2\pi_2 + 3\pi_3 + 4\pi_4
+$$
+This is given by the following code:
+```{r}
+pi4[2] + 2 * pi4[3] + 3 * pi4[4] + 4 * pi4[5]
+```
+Therefore, in the long run `r pi4[2] + 2 * pi4[3] + 3 * pi4[4] + 4 * pi4[5]` machines are typically working.
+
+(c) The desired probability is:
+$$
+\mathbb{P}(X_5 = 2 | X_0 = 4) = \mathbb{?}
+$$
+We know,
+$$
+P(t) = e^{t\mathbf{Q}}
+$$
+We can use the `expm` function in R to find the desired probability. Follow the code below:
+```{r}
+Q3 <- matrix(c(-1/2, 1/2, 0, 0, 0,
+               1/10, -3/5, 1/2, 0, 0,
+               0, 1/5, -7/10, 1/2, 0,
+               0, 0, 3/10, -11/20, 1/4,
+               0, 0, 0, 2/5, -2/5), nrow = 5, ncol = 5, byrow = T)
+
+Q3
+
+P3 <- function(t) {expm(t*Q3)}
+P3(5)
+
+P3(5)[5,3]
+```
+Thus, the desired probability is `r P3(5)[5,3]`.
+
+\newpage
+
+$\textbf{7.26}$ A facility has three machines and three mechanics. Machines break down at a rate of one per 24 hours. Breakdown times are exponentially distributed. The time it takes a mechanic to fix a machine is exponentially distributed with mean 6 hours. Only one mechanic can work on a failed machine at any given time. Let $X_t$ be the number of machines working at time $t$. Find the long term probability that all machines are working.
+
+$\textbf{Solution:}$ 
+
+The generator matrix for the given situation looks like:
+$$
+    \begin{aligned}
+    \mathbf{Q} &=
+    \begin{array}{c@{\;}c}
+    & \begin{array}{cccc} \hspace{2pt} 0 \hspace{4pt} & \hspace{2pt} 1 \hspace{4pt} & \hspace{2pt} 2 \hspace{2pt} & 3\end{array} \\[3pt]
+    \begin{array}{c} 0 \\ 1 \\ 2 \\ 3\end{array} &
+    \left(
+    \begin{array}{cccc}
+        -\frac{1}{2} & \frac{1}{2} & 0 & 0 \\
+        \frac{1}{24} & -\frac{3}{8} & \frac{1}{3} & 0 \\
+        0 & \frac{1}{12} & -\frac{1}{4} & \frac{1}{6} \\
+        0 & 0 & \frac{1}{8} & -\frac{1}{8}
+    \end{array}
+    \right)
+    \end{array}
+    \end{aligned}
+$$
+State 1,0 for machines: One machine that can break and the rate is given to us as $\frac{1}{24}$ to return to state 0 where none of the machines are broken. This makes the diagonal sum $-\frac{3}{8}$
+
+State 2: One workman with 2 machines which can break; $(0, \frac{1}{12}, \frac{-1}{4}, \frac{1}{6})$, so the rate of machines failing would be $\frac{1}{24} \cdot 2$ because now there are two machines now. 
+
+State 3: All three machines work for a rate $\frac{1}{24} \cdot 3 = \frac{1}{8}$ to drop down. We can calculate the third row in detail from the first principle which says that the transition rates from 0 to 1 would be $\frac{1}{6}+\frac{1}{6}+\frac{1}{6}= \frac{3}{6} = \frac{1}{2}$. Similarly, the rate from 3 to 2 would be $\frac{1}{24} +\frac{1}{24}+\frac{1}{24}=\frac{3}{24}=\frac{1}{8}$
+
+The Long term probability that all machines are working can be found by solving for the equation $\pi\mathbf{Q} =0$ which we can do in R,
+```{r}
+A5 <- matrix(c(-1/2, 1/24, 0, 0,
+               1/2, -3/8, 1/12, 0,
+               0, 1/3, -1/4, 1/8,
+               0, 0, 1/6, -1/8,
+               1, 1, 1, 1), nrow = 5, ncol = 4, byrow = T)
+A5
+
+b5 <- c(0, 0, 0, 0, 1)
+
+pi5 <- qr.solve(A5, b5)
+pi5
+```
+Thus, $(\pi_0, \pi_1, \pi_2, \pi_3) = (0.008, 0.096, 0.384, 0.512)$.
+Since we want the probability that all machines are working this means that none of the machines are broken which is given by $\pi_3$. Thus, the desired probability is `r pi5[4]`.
+
+\newpage
+
+$\textbf{7.33}$ Consider an $M/M/1$ queue. Assume that the arrival and service time rate are both increased by a factor of $k$. What effect does it have on:
+
+(a) The long-term expected number of customers in the system?
+
+(b) The long-term expected time that a customer is in the system? 
+
+$\textbf{Solution:}$ 
+
+Let $X_t$ denote the number of customers in the system at time $t$. We know that this is a $M/M/1$ queuing system, which is birth-and-death process with constant birth and death rates. The arrival rate is $\lambda k$ and the service rate is $\mu k$.
+
+The limiting distribution probabilities for the stationary distribution are:
+$$
+\pi_k = \pi_0 \prod_{i=1}^{k} \frac{\lambda k}{\mu k}
+$$
+$$
+=\pi_0 \Big(\frac{\lambda}{\mu} \Big)^k
+$$
+with,
+$$
+\pi_0 = \Big(\Big(\sum_{k=0}^{\infty}\frac{\lambda k }{\mu k } \Big)^k\Big)^{-1}
+$$
+$$
+= 1 - \frac{\lambda}{\mu}
+$$
+Provided that $\lambda k < \mu k$, the stationary distribution is a geometric distribution on $\{0,1,...\}$ with the parameter $1 - \frac{\lambda k}{\mu k}=1 - \frac{\lambda }{\mu }$ 
+
+Then the long term expected number of customers in the system is given by Little's formula. 
+
+The long-term of expected number of customers in a geometric distribution is just its mean. Thus, the desired expectation is:
+$$
+\frac{\frac{\lambda}{\mu}}{1 - \frac{\lambda}{\mu}} = \frac{\lambda}{\mu}\cdot\frac{\mu}{\mu - \lambda} = \frac{\lambda}{\mu - \lambda}
+$$
+Notice that,
+$$
+\frac{\frac{\lambda k}{\mu k}}{1 - \frac{\lambda k}{\mu k}} = \frac{\lambda k}{\mu k}\cdot\frac{\mu k}{\mu k - \lambda k} = \frac{\lambda}{\mu - \lambda}
+$$
+is just the same. Thus, if both $\lambda$ and $\mu$ are increased by the factor of $k$, it doesn't change the expected value. 
+
+On average there will be $\frac{\lambda}{\mu - \lambda}$ customers in the long term in the system. In Little's terms, $L = \frac{\lambda}{\mu - \lambda}$
+
+(b) By Little's formula, the long term average or expected time that the customer is in the system is $W$. 
+$$
+W = \frac{L}{\lambda} = \frac{\frac{\lambda}{\mu-\lambda}}{\lambda} = \frac{\lambda}{\mu - \lambda} \cdot \frac{1}{\lambda} = \frac{1}{\mu - \lambda}
+$$
+The new wait time is: 
+$$
+\frac{W}{k} = \frac{L}{\lambda k} = \frac{\frac{\lambda k }{\mu k -\lambda k}}{\lambda k} = \frac{\lambda k}{\mu k - \lambda k} \cdot \frac{1}{\lambda k} = \frac{1}{\mu k - \lambda k}
+$$
+
+\newpage
+
+$\textbf{7.35}$ Consider a continuous time Markov chain with generator
+$$
+\mathbf{Q} = 
+\left(
+    \begin{array}{ccc}
+        -1 & 0  & 1   \\
+        1  & -2 & 1   \\
+        1  & 3  & -4
+    \end{array}
+\right).
+$$
+Represent the process as a Markov chain subordinated to a Poisson Process. Exhibit the transition matrix $P(t)$ in terms of $\mathbf{R}$
+
+$\textbf{Solution:}$ 
+
+Consider a continuous time Markov chain with generator $\mathbf{Q}$ and holding time parameters $q_1, q_2, ...$. Assume that the parameters are uniformly bounded i.e.
+$$
+\exists \lambda s.t. q_i \leq \lambda, \text{ for all } i
+$$
+where $\lambda$ is a constant. This is always the case if the chain is finite and we can take $\lambda = max(q_i)$. Let
+$$
+\mathbf{R} = \frac{1}{\lambda}\mathbf{Q} + I
+$$
+The matrix $\mathbf{R}$ is a stochastic matrix. Entries are non-negative and rows sum to 1. The transition function can be given in terms of $\mathbf{R}$ as:
+$$
+P(t) = e^{t\mathbf{Q}} = e^{-\lambda t} e^{t \mathbf{Q}} e^{\lambda t}
+$$
+$$
+= e^{-\lambda t} e^{t( \mathbf{Q} + \lambda I)}
+$$
+$$
+= e^{-\lambda t} \sum_{k=0}^{\infty}\frac{1}{k!}(\mathbf{Q}+\lambda I)^k
+$$
+$$
+= \sum_{k=0}^{\infty}(\frac{1}{\lambda}\mathbf{Q}+I)^k \frac{e^{-\lambda t }(\lambda k)}{k!}
+$$
+$$
+= \sum_{k=0}^{\infty}\mathbf{R}^k \frac{e^{-\lambda t }(\lambda k)}{k!}
+$$
+This is the continuous time Markov chain subordinated to a Poisson Process.
+
+Not that $\mathbf{R}$ is NOT a matrix of the embedded Markov chain. The entries of the embedded Markov chain are given as:
+$$
+\mathbf{\widetilde{P}}_{ij} = 
+\begin{cases}
+    \frac{q_{ij}}{q_1}, \text{ for } i \neq j \\
+    0, \text{ for } i = j
+\end{cases}
+$$
+While the entries of the $\mathbf{R}$ matrix are:
+$$
+\mathbf{R} = 
+\begin{cases}
+    \frac{q_{ij}}{\lambda}, \text{ for } i \neq j \\
+    1 - \frac{q_i}{\lambda}, \text{ for } i = j
+\end{cases}
+$$
+Poisson subordination can be described as follows:
+
+From a given state $i$, wait an exponential length of time with rate $\lambda$. Them, flip a coin whose heads probability is $\frac{q_i}{\lambda}$. If heads, transition to a new state according to the $\mathbf{R}$ matrix. If tails, stay at $i$ and repeat. Thus, holding time parameters are constant, and transition, or pseudo-transition, from a state to itself are allowed. 
+
+Consider the given continuous time Markov chain on $\{a, b, c\}$ with the generator:
+$$
+\begin{aligned}
+\mathbf{Q} &=
+\begin{array}{c@{\;}c}
+    & \begin{array}{ccc} \hspace{2pt} a \hspace{4pt} & \hspace{2pt} b \hspace{4pt} & \hspace{2pt} c \end{array} \\[3pt]
+    \begin{array}{c} a \\ b \\ c \end{array} &
+    \left(
+    \begin{array}{ccc}
+        -1 & 0 & 1 \\
+        1 & -2 & 1 \\
+        1 & 3 & -4
+    \end{array}
+    \right)
+\end{array}
+\end{aligned}
+$$
+Choose $\lambda = max\{1,2,4\} = 4$. Then,
+$$
+\mathbf{R} = \frac{1}{\lambda}\mathbf{Q} + I 
+$$
+$$
+= \frac{1}{4} \cdot
+\begin{bmatrix} 
+    -1 & 0 & 1\\
+    1 & -2 & 1\\
+    1 & 3 & -4
+\end{bmatrix} \cdot
+\begin{bmatrix} 
+    1 & 0 & 0\\
+    0 & 1 & 0\\
+    0 & 0 & 1
+\end{bmatrix} =
+\begin{bmatrix} 
+    \frac{3}{4} & 0 & \frac{1}{4}\\
+    \frac{1}{4} & \frac{1}{2} & \frac{1}{4}\\
+    \frac{1}{4} & \frac{3}{4} & 0
+\end{bmatrix}
+$$
+
+\newpage
+
+$\textbf{7.39}$ `R:` Simulate an $M/M/\infty$ queue and verify the result of Exercise 7.20, choosing your own values for $\lambda$ and $\mu$.
+
+$\textbf{Solution:}$
+
+In exercise 7.20, the results we got for the mean was $\frac{\lambda}{\mu}$. For this exercise I chase my $\lambda = 24$ and $\mu=4$. Let's see if the results of the simulation is close to $6$. Follow the R code below:
+
+```{r, warning=FALSE}
+set.seed(123)
+
+trials <- 10000
+
+simnum <- numeric(trials)
+
+lambda <- 24
+mu <- 4
+
+for (i in 1:trials) {
+  serves <- 0
+  t <- 0
+  for (j in 1:1000){
+    arrivals <- rexp(1, lambda)
+    if (serves == 0){
+      t <- t + arrivals
+      serves <- 1
+    }
+    else {
+      s <- rexp(serves, mu)
+      newtime <- min(arrivals, s)
+      if (newtime==arrivals) {
+        serves <- serves + 1
+        } 
+      else {
+        serves <- serves - 1 
+      t <- t + newtime
+      }
+    }
+  }
+  simnum[i] <- serves
+}
+
+mean(simnum)
+```
+
+As we can see the `r `mean(simnum)` is a little off to $6$, by `r abs(6-mean(simnum))`, that is probably because a thousand iterations is not enough, if we increase our simulation number to be very large, it would get us closer and closer to $\frac{\lambda}{\mu}$, which in this case would be $\frac{24}{4} = 6$. 
