@@ -29,3 +29,7 @@ The primary goal of this project is to develop and compare predictive models tha
 # Data Citation
 
 I have obtained the dataset from one of the recommended data sources provided by Prof. Coburn. It's the water potability data from [Kaggle](https://www.kaggle.com/datasets/developerghost/water-potability/data). A formal citation is included in the References section. 
+
+# Data Directories
+
+The data directories have been chnaged and they are now in different folders, you might have to manipulate the paths to make sure everything is working
