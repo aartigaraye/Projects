@@ -1,1 +1,755 @@
+---
+title: "Water Potability Classification Analysis"
+subtitle: "Using Machine Learning Models to Predict the Potability of Water."
+author: "Aarti Garaye"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    code_folding: hide
+urlcolor: blue
+linkcolor: red
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction 
+
+Water is the most important source of life to sustain many living things. All living things on earth depend on water to grow and sustain life. In order to use this water in everyday life, it is significant to have access to clean water without contamination. Persistent pollution of water will affect the life of living organisms using water. Recent studies have shown that water quality continues to decline, making it less suitable for use. [1](https://ieeexplore.ieee.org/abstract/document/9137903/). Water pollution can be defined in terms of its quality which is determined by various features like pH, turbidity, electrical conductivity dissolved, etc. 
+
+This project aims to presents a prediction of water potability deploying different classification models employing machine learning algorithms. We will be using logistic regression, LDA, QDA, elastic net, a random forrest, and SVM. Different classification methods encourage us to compare several classification methods that can be used. Machine learning is well-suited for this type of classification task. Traditional rule-based systems often depend on fixed thresholds for each parameter (e.g., "pH must be between 6.5 and 8.5"), but these boundaries may fail to capture the complex, non-linear relationships between water features and potability. 
+
+| Term                                | Quick Definition                                         | Why It Matters for Health                                                  |
+| ----------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **pH**                              | Measure of acidity/basicity (scale 0–14).                | Extreme pH can corrode pipes and leach heavy metals.                       |
+| **Turbidity**                       | Cloudiness caused by suspended particles (NTU).          | High turbidity can shield pathogens and reduce disinfection effectiveness. |
+| **Hardness**                        | Concentration of calcium & magnesium (mg CaCO₃/L).       | Aesthetic concern; very high values promote scale formation.               |
+| **Total Dissolved Solids (Solids)** | Mass of inorganic salts & small organic molecules (ppm). | Elevated TDS can alter taste and indicate other contaminants.              |
+| **Chloramines**                     | Disinfectant formed from chlorine + ammonia (mg/L).      | Necessary for disinfection but toxic at high doses.                        |
+| **Sulfate**                         | Dissolved sulfate ions (mg/L).                           | > 250 mg/L imparts bitter taste and laxative effect.                       |
+| **Conductivity**                    | Ability of water to conduct electricity (µS/cm).         | Proxy for total ion concentration.                                         |
+| **Organic Carbon**                  | Carbon from natural organic matter (mg C/L).             | Reacts with chlorine to form harmful disinfection by-products.             |
+| **Trihalomethanes (THMs)**          | Chlorination by-products (µg/L).                         | Long-term exposure linked to cancer risk.                                  |
+
+The primary goal of this project is to develop and compare predictive models that can flag unsafe water using readily obtainable measurements. Concretely, we will:
+
+1. Pre-process the dataset of $\approx 3000$ samples: impute missing values, standardize predictors, and stratify into training and testing subsets.
+
+2. Train each of the six algorithms using cross-validation to ensure fair evaluation (hyper-parameter tuning where applicable).
+
+3. Assess model performance with accuracy, ROC-AUC, and confusion matrices on an unseen test set.
+
+4. Interpret variable importance to identify which chemical features drive potability decisions.
+
+5. Deliver a concise recommendation of the best-performing, most practical model for potential deployment in routine water-quality screening.
+
+# Data Citation
+
+I have obtained the dataset from one of the recommended data sources provided by Prof. Coburn. It's the water potability data from [Kaggle](https://www.kaggle.com/datasets/developerghost/water-potability/data). A formal citation is included in the References section. 
+
+# Exploratory Data Analysis
+
+Before we begin with exploring the data, we must set seed for reproducibility, load all the necessary libraries, and read the data in. 
+
+```{r, warning=FALSE, message=FALSE}
+# setting the seed
+set.seed(123)
+
+# necessary libraries
+library(readxl)
+library(knitr)
+library(dplyr)
+library(tidymodels)
+library(tidyverse)
+library(ggplot2)
+library(naniar)
+library(corrplot)
+library(corrr)
+library(readr)
+library(kableExtra)
+library(parsnip)
+library(workflows)
+library(discrim)
+library(kknn)
+library(yardstick)
+library(glmnet)
+library(janitor)
+library(themis) 
+library(forcats)
+library(fastDummies)
+library(ranger)
+library(vip)
+library(MASS)
+library(kernlab)
+
+# reading the data
+water <- read_excel("water_potability_excel.xlsx")
+water <- water %>%
+  mutate(ph = as.numeric(ph)) %>%
+  mutate(Hardness = as.numeric(Hardness)) %>%
+  mutate(Solids = as.numeric(Solids)) %>%
+  mutate(Chloramines = as.numeric(Chloramines)) %>%
+  mutate(Sulfate = as.numeric(Sulfate)) %>%
+  mutate(Conductivity = as.numeric(Conductivity)) %>%
+  mutate(Organic_carbon = as.numeric(Organic_carbon)) %>%
+  mutate(Trihalomethanes = as.numeric(Trihalomethanes)) %>%
+  mutate(Turbidity = as.numeric(Turbidity)) %>%
+  mutate(Potability = factor(Potability, levels = c("1", "0")))
+```
+
+## Familiarizing with the Data
+
+This data was obtained from a well known data source, Kaggle, so it's easier to know the variables present in the data. It's a good idea to look at the description of what the data contains. 
+
+The dataset contains $3276$ observations. We can quickly check that information by counting the number of rows.
+
+```{r}
+kable(nrow(water), caption = "Number of observations in the dataset.")
+```
+
+Here is a description of what each variable represents in the dataset: 
+
+1. `ph`: PH is an important parameter in evaluating the acid–base balance of water. It is also the indicator of acidic or alkaline condition of water status. WHO has recommended maximum permissible limit of pH from 6.5 to 8.5. The current investigation ranges were 6.52–6.83 which are in the range of WHO standards.
+
+2. `Hardness`: Hardness is mainly caused by calcium and magnesium salts. These salts are dissolved from geologic deposits through which water travels. The length of time water is in contact with hardness producing material helps determine how much hardness there is in raw water. Hardness was originally defined as the capacity of water to precipitate soap caused by Calcium and Magnesium.
+
+3. `Solids` : Water has the ability to dissolve a wide range of inorganic and some organic minerals or salts such as potassium, calcium, sodium, bicarbonates, chlorides, magnesium, sulfates etc. These minerals produced un-wanted taste and diluted color in appearance of water. This is the important parameter for the use of water. The water with high TDS value indicates that water is highly mineralized. Desirable limit for TDS is 500 mg/l and maximum limit is 1000 mg/l which prescribed for drinking purpose.
+
+4. `Chlormines`: Chlorine and chloramine are the major disinfectants used in public water systems. Chloramines are most commonly formed when ammonia is added to chlorine to treat drinking water. Chlorine levels up to 4 milligrams per liter (mg/L or 4 parts per million (ppm)) are considered safe in drinking water.
+
+5. `Sulfate`: Sulfates are naturally occurring substances that are found in minerals, soil, and rocks. They are present in ambient air, groundwater, plants, and food. The principal commercial use of sulfate is in the chemical industry. Sulfate concentration in seawater is about 2,700 milligrams per liter (mg/L). It ranges from 3 to 30 mg/L in most freshwater supplies, although much higher concentrations (1000 mg/L) are found in some geographic locations.
+
+6. `Conductivity`: Pure water is not a good conductor of electric current rather’s a good insulator. Increase in ions concentration enhances the electrical conductivity of water. Generally, the amount of dissolved solids in water determines the electrical conductivity. Electrical conductivity (EC) actually measures the ionic process of a solution that enables it to transmit current. According to WHO standards, EC value should not exceeded 400 $\mu$S/cm.
+
+7. `Organic_carbon`: Total Organic Carbon (TOC) in source waters comes from decaying natural organic matter (NOM) as well as synthetic sources. TOC is a measure of the total amount of carbon in organic compounds in pure water. According to US EPA < 2 mg/L as TOC in treated / drinking water, and < 4 mg/Lit in source water which is use for treatment.
+
+8. `Trihalomethanes`: THMs are chemicals which may be found in water treated with chlorine. The concentration of THMs in drinking water varies according to the level of organic material in the water, the amount of chlorine required to treat the water, and the temperature of the water that is being treated. THM levels up to 80 ppm is considered safe in drinking water.
+
+9. `Turbidity`: The turbidity of water depends on the quantity of solid matter present in the suspended state. It is a measure of light emitting properties of water and the test is used to indicate the quality of waste discharge with respect to colloidal matter. The mean turbidity value obtained for Wondo Genet Campus (0.98 NTU) is lower than the WHO recommended value of 5.00 NTU.
+
+10. `Potability`: Indicates if water is safe for human consumption where 1 means Potable and 0 means Not potable.
+
+## Missing data
+
+To check whether there is any missing data in the dataset, I would like to use `vis_miss`
+
+```{r, fig.align='center', fig.show='hold', fig.cap="There is around 4.4% of data missing. There are missing values of ph, Sulfate, and Trihalomethanes."}
+vis_miss(water)
+```
+
+The best way to handle these missing values would be to impute them in the recipe. However, to check if we can use linear imputation we would like to check whether the predictors are correlated or not. If some predictors are highly correlated with some of the missing variables then we can use that to impute the missing values. 
+
+## Correlation Matrix
+
+It's important to check the correlation as it tells us whether we would like to use some interaction terms to make our models more robust and handle the collinearity if it is present. 
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The correlation matrix between predictors. Note, there is no Potability since it is not a numerical variable. There is no strong correlation between any two predictors. We don't have to worry about the interraction terms."}
+water %>%
+  dplyr::select(where(is.numeric)) %>%
+  cor(use = "pairwise.complete.obs") %>%
+  corrplot(method = "color", type = 'lower')
+```
+
+As mentioned in the above section, we would've used come correlated variables to impute and find he missing data. Since none of them are correlated, a knn imputation would work the best. Or we could impute by median since it is a more robust statistic than mean. 
+
+## Balance
+
+Before we proceed, we need to check whether we have a balanced or an imbalanced dataset. To do this, we can make a bar chart and see whether the number of observations for one class of Potability is significantly more than the other. 
+
+```{r, fig.align='center', fig.show='hold', fig.cap="This is an example of an imbalanced dataset. There are more observations that are not Potable. To tackle this problem, I will use stratified splitting, stratifying on the outcome variable."}
+ggplot(water, aes(x=Potability)) +
+  geom_bar() +
+  theme_bw()
+```
+
+The dataset is skewed towards not Potable water since 0 represents water than is unsafe (not Potable). This can also be more clearly seen in a table where we can see the number of observations that are potable and observations that are not.
+
+```{r}
+kable(table(water$Potability), caption="Number of observations in each 
+      class of the water dataset")
+```
+
+As the table shows, there are more observations that are not safe. 
+
+## Visual EDA
+
+To see whether any predictor is a strong predictor of the outcome variable, I made some boxplot and scatterplots. Variables that I think will contribute the most to the Potability of water would be ph, Hardness, and Conductivity. 
+
+### Boxplot
+
+I would like to make a boxplot for ph and Potability so see whether ph is a good indicator of Potability.
+
+```{r, warning=FALSE, fig.align='center', fig.show='hold', fig.cap="The boxplot shows that there is no significant different between the ph levels of Potable water and not Potable water."}
+ggplot(water, aes(x=Potability, y=ph)) +
+  geom_boxplot() +
+  theme_bw()
+```
+
+### Scatterplot
+
+The correlation matrix shows us that there is no linear correlation between the two predictors, but a scatterplot might show non-linear patterns between different predictors, so it's important to make a scatterplot of two predictors as well as the Potability. 
+
+```{r, fig.align='center', fig.show='hold', fig.cap="There is no visible trend between the Hardness and Conductivity of water and it's Potability. It looks like no matter where the observation is there is a random chance of it being Potable and not Potable."}
+ggplot(water, aes(x=Hardness, y=Conductivity, colour = Potability)) +
+  geom_point() + 
+  theme_bw()
+```
+
+I tried different scatterplots using different combinations of the predictors and Potability and all of them look similar to the one we have above. This might seem a little disheartening to make a model that could predict the Potability of water when everything just seems random. Our goal is to build a model that is a little better than the random chance, and that would be counted as a win. 
+
+# Data Split
+
+Since there are around 3000 observations, I think a 70/30 split would be appropriate. 
+
+```{r}
+water_split <- initial_split(water, prop = 0.70,
+                                strata = Potability)
+
+water_train <- training(water_split)
+water_test <- testing(water_split)
+
+kable(nrow(water_train), caption = "Number of observations in the 
+      training dataset") # 3276 * 0.7 = 2292.3
+kable(nrow(water_test), caption = "Number of observations in the 
+      testing dataset.") 
+```
+
+Furthermore, we will be employing a k-fold cross validation, so I would like to split the training data into folds right now. Since we have a quite good amount of observations and the tree models will be bigger, I would like $k=5$. Thus, we will be employing a 5-fold cross validation and since we have an imbalanced dataset, we will be stratifying on the outcome variable just like we did for the training and the testing split. 
+
+```{r}
+# Splitting in folds. using v=5
+water_folds <- vfold_cv(water_train, v=5)
+```
+
+# Creating a Recipe
+
+We will now bring together our predictors and our response variable to build our recipe which we will use for all the models. This recipe is what is going to make our models tasty (functioning and better than a random chance). Each variable plays an important role in predicting the Potability, especially after what we just found about the predictors' relationship with the response variable in the EDA section (none of the predictors show a strong relationship with Potability, so they must all contribute to explaining the variability in Potability). 
+
+We have some missing data in some of the variables, so we would like to use a knn imputation to come up with the missing values. As mentioned in the EDA the relationship between predictor variables look similar to the one scatterplot presented above, therefore, it wouldn't matter which predictors we use as imputation variables. I made the decision based on the scatter plots of these variables and these were the "closest" ones. For the knn imputation, I chose the hyperparameter, the number of neighbors to be 5. There is no significant enough reason why I chose that, but I didn't want to choose the neighbors to be too high which might result in a higher dimensionality and computation problems. This was the first number that came to my mind and I went with my instincts after looking at the scatterplots. 
+
+```{r, fig.align='center', fig.show='hold', fig.cap="As we can see after the recipe has been preped and baked, we have no missing values now."}
+water_recipe <- recipe(Potability ~ ph + Hardness + Solids + Chloramines + 
+                         Sulfate + Conductivity + Organic_carbon + 
+                         Trihalomethanes + Turbidity, data = water_train) %>%
+  step_center() %>%
+  step_scale() %>%
+  step_impute_knn(ph, neighbors = 5, impute_with = 
+                    imp_vars(Hardness, Chloramines, 
+                             Conductivity, Organic_carbon)) %>%
+  step_impute_knn(Sulfate, neighbors = 5, impute_with = 
+                    imp_vars(Solids, Chloramines,
+                             Conductivity, Organic_carbon)) %>%
+  step_impute_knn(Trihalomethanes, neighbors = 5, impute_with = 
+                    imp_vars(Organic_carbon, Hardness,
+                             Conductivity, Turbidity))
+
+prep(water_recipe) %>%
+  bake(new_data=water_train) %>%
+  vis_miss()
+```
+
+In our dataset we only have numeric predictors so we didn't need to dummy code any of the categorical predictor. We centered and scaled all predictors in the test which essentially is just normalizing all the predictors. We do this to ensure that no predictors have widely different scales, it tends to improve the algorithm performance.Now that we have our recipe ready, we can move on to creating the models for predicting Potability of water. 
+
+Note, that we will be using a different recipe for the support vector machine algorithm because the scatterplot didn't show clear distinction between the predictors. It basically is an optimization problem set up and involves in finding the optimal hyperplane that maximizes the margins between classes. So, the a lesser dimension recipe works better for SVMs. The SVM recipe is as follows:
+
+```{r}
+water_svm_recipe <- recipe(Potability ~ Hardness + Solids,
+                           data = water_train) %>%
+  step_normalize(all_predictors())
+
+prep(water_svm_recipe) %>%
+  bake(new_data=water_train) 
+```
+We will still be normalizing all predictors to make sure the scales are not widely different. 
+
+# Building Models
+
+The models we will be working with are Logistic Regression, LDA, QDA, Elastic Net, Random Forest, and SVM. I wanted to employ a knn model as well, however, we did in that in the recipe to impute the missing values. We will be relying on KNN twice which creates redundancy and we may risk overfitting if we use KNN. It's generally not recommended to use the same model for imputation and for modelling. 
+
+## Logistic Regression, LDA, and QDA
+
+Starting with building the models that won't be tuned, logistic regression, LDA, and QDA. We don't expect for the logistic regression and the LDA to perform very well because they assume linearity and same covariance for LDA and same means. QDA is slightly less strict in the sense that it assumes same means but different covariances between the predictors. I think the QDA will perform better than logistic regression and the LDA.
+
+In the following code chunk we will be setting the engines and workflow for logistic regression, LDA, and QDA
+
+```{r}
+# Setting engine Logreg
+water_logreg_model <- logistic_reg() %>%
+  set_engine("glm") %>%
+  set_mode("classification")
+
+# Setting workflow Logreg
+water_logreg_workflow <- workflow() %>%
+  add_model(water_logreg_model) %>%
+  add_recipe(water_recipe)
+
+# Setting engine LDA
+water_lda_model <- discrim_linear() %>%
+  set_engine("MASS") %>%
+  set_mode("classification")
+
+# Setting workflow LDA
+water_lda_workflow <- workflow() %>%
+  add_model(water_lda_model) %>%
+  add_recipe(water_recipe)
+
+# Setting engine QDA
+water_qda_model <- discrim_quad() %>%
+  set_engine("MASS") %>%
+  set_mode("classification")
+
+# Setting workflow Logreg
+water_qda_workflow <- workflow() %>%
+  add_model(water_qda_model) %>%
+  add_recipe(water_recipe)
+```
+
+## Elastic Net
+
+Now we will be setting an elastic net model where we can tune the penalty and mixture. It combines the strengths of lasso and ridge regression but the tradeoff is that we have to tune two hyperparameters. The least squares coefficients estimates expect scaled equivalence. Elastic net is computationally more expensive than ridge or lasso because it's a mix of both and can "solve" both limitations of lasso and ridge, while including special cases. 
+
+Penalty is a non negative number representing the total amount of regularization. Mixture is a number between 0 and 1 (inclusive) denoting the proportion of lasso regularization in the model. So, Mixture 1 is a pure lasso regression and Mixture 0 is a pure ridge. 
+
+We will be tuning the elastic net using the 5-fold cross validation. Recall that we already created the folds. In the code chunk below we will be setting the engine, setting the workflow, and creating a grid for the elastic net model.
+
+```{r}
+# Setting engine
+water_en_model <- logistic_reg(mixture = tune(),
+                               penalty = tune()) %>%
+  set_mode("classification") %>%
+  set_engine("glmnet")
+
+# Setting workflow
+water_en_workflow <- workflow() %>%
+  add_model(water_en_model) %>%
+  add_recipe(water_recipe)
+
+# Setting grid
+water_en_grid <- grid_regular(penalty(range = c(0.01, 5), 
+                                      trans = identity_trans()),
+                              mixture(range = c(0,1)),
+                              levels = 10)
+```
+
+## Random Forest
+
+Random Forest is an ensemble learning method that operates by constructing a multitude of decision trees during training time and outputting the class that is the mode of the classes of the individual trees. It is particularly effective for classification tasks due to its ability to handle nonlinear relationships, avoid overfitting through averaging, and provide insights into feature importance.
+
+The hyperparameters we will be tuning for a random forest are mtry, which is essentially the most influential hyperparameter. Each tree gets a subset of parameters to form the tree on because otherwise all of the trees will follow the greedy approach and split on the same parameters at every stage and that would not result in independent trees. So, `mtry` is a hyperparameter about how many predictors will be available to each tree at each split. Typically $m = \sqrt{p}$ where $p$ is the number of parameters. 
+
+The next hyperparameter in the model is tress which is just the number of trees. As the number of trees increase the computation time increases. There's a tradeoff between computation time and test error. At some point if you increase the number of trees it would increase the time exponentially but the test error wouldn't see that significant of a difference.
+
+The last hyperparameter we will be tuning is the `min_n` which is also known as the stopping time or the tree size. Without a min_n a tree can grow a lot and we have to prune it. The min_n tells when each tree must stop, this way we can ensure uniformity in tree size across our random forest. 
+
+In the next code chunk we will be setting up the engine for the random forest, the workflow, and the grid for tuning.
+
+```{r}
+# Setting engine
+water_rf_model <- rand_forest(
+  mtry = tune(),
+  trees = tune(),
+  min_n = tune()
+) %>%
+  set_engine("ranger", importance = "impurity") %>%
+  set_mode("classification")
+
+# Setting workflow
+water_rf_workflow <- workflow() %>%
+  add_model(water_rf_model) %>%
+  add_recipe(water_recipe)
+
+# Setting grid
+water_rf_grid <- grid_regular(mtry(range = c(2,8)),
+                              trees(range = c(200, 1000)),
+                              min_n(range = c(5, 20)),
+                              levels = 8)
+```
+
+For these, we set the mtry to be between 2 and 8 because there are 9 total parameters and having 1 or 9 as m doesn't work. If $m=1$ then every tree only has access to 1 predictor at each split. This would mean we are restricting every split for every tree to just one of the predictors and forcing it to choose that one predictor. This defies the greedy approach that we talked about. On the other hand, when $m=9$ we are making all the predictors available for split. This results in all the trees making split on the predictor they think explains the most variability. As a result all trees make the first split on the same variable making the trees not independent. It represents a Bagging model when $m=9$. 
+
+I've selected the number of trees to range from 200 to 1000 since I think these will be enough to cover the datasetl. The min_n range is from 5 to 20 and there are 8 levels which I thought was a middle ground between 5 and 10. 
+
+## SVM
+
+A support vector machine is a powerful supervised learning algorithm used for classification and regression tasks. It works by finding the optimal hyperplane that best separates classes in the feature space. When data is not linearly separable, SVM can apply kernel functions (e.g., polynomial, radial basis function) to transform the data into a higher-dimensional space where separation is possible.
+
+In our case, we employed a polynomial kernel and tuned key hyperparameters such as cost, controls the tradeoff between margin size and misclassification, and degree, determines the flexibility of the polynomial. 
+
+We have a different recipe for SVM because we didn't have enough time in class to cover it in depth, so I followed the lab materials to build this model. Furthermore, we know SVMs are sensitive to scaled predictors and they may not require the same preprocessing steps as tree-based models.We use a different recipe for SVM to prepare the data in a way that makes SVM work properly — especially normalization and encoding — while other models may not need those steps. This is a very simple SVM model which doesn't capture the entirety of the data. 
+
+In the code below we have set up the engine, the workflow, and the grid for the SVM model.
+
+```{r}
+# Setting engine
+water_svm_model <- svm_poly(degree = tune(),
+                            cost = tune()) %>%
+  set_mode("classification") %>%
+  set_engine("kernlab")
+
+# Setting workflow
+water_svm_workflow <- workflow() %>%
+  add_model(water_svm_model) %>%
+  add_recipe(water_svm_recipe) 
+
+# Setting grid
+water_svm_grid <- grid_regular(cost(range = c(-5,5)), 
+                               degree(range = c(1,5)), 
+                               levels = 5)
+```
+
+I chose the range for cost and degree based on the lab materials. I think a 5 degree polynomial is appropriately flexible and a degree 1 polynomial is appropriately rigid. 
+
+This was the last step before we can move on to tuning our models. 
+
+# Tunning Models 
+
+The main metric we will be using for tuning the models would be the area under the roc curve. We will sometimes also look at the accuracy and confusion matrix depending on different models.
+
+## Logistic Regression, LDA, and QDA
+
+Recall that these are the models that do not need tuning since there is no hyperparameter involved. I have saved these just like I did for other models, the code can be found under `Final misc 231` file. 
+
+```{r}
+# Fitting logreg 
+#water_logreg_tune <- fit_resamples(
+#  water_logreg_workflow,
+#  resamples = water_folds,
+#  metrics = metric_set(accuracy, roc_auc),
+#  control = control_resamples(save_pred = TRUE)
+#)
+
+#save(water_logreg_tune, file = "water_logreg_tune.rda")
+
+# Fitting LDA
+#water_lda_tune <- fit_resamples(
+#  water_lda_workflow,
+#  resamples = water_folds,
+#  metrics = metric_set(accuracy, roc_auc),
+#  control = control_resamples(save_pred = TRUE)
+#)
+
+#save(water_lda_tune, file = "water_lda_tune.rda")
+
+# Fitting QDA
+#water_qda_tune <- fit_resamples(
+#  water_qda_workflow,
+#  resamples = water_folds,
+#  metrics = metric_set(accuracy, roc_auc),
+#  control = control_resamples(save_pred = TRUE)
+#)
+
+#save(water_qda_tune, file = "water_qda_tune.rda")
+```
+
+This code chunk is all commented out because, as mentioned these are saved and now all we have to do is load them
+
+## Elastic Net
+
+Just like the previous one, I have tuned the models and saved the results in a separate .rmd file. Here is the commented out code chunk
+
+```{r}
+#water_en_tune <- tune_grid(
+#  water_en_workflow,
+#  resamples = water_folds,
+#  grid = water_en_grid
+#)
+
+#save(water_en_tune, file = "water_en_tune.rda")
+```
+
+After tuning, I selected the best-performing model based on ROC AUC and finalized the workflow for evaluation on the training and test sets in the testing section.
+
+## Tree Based Models
+
+Running this takes approximately 35-65 minutes. Therefore, the code chunk below is commented out. 
+
+```{r}
+#water_rf_tune <- tune_grid(
+#  water_rf_workflow,
+#  resamples = water_folds,
+#  grid = water_rf_grid
+#)
+
+#save(water_rf_tune, file = "water_rf_tune.rda")
+```
+
+## SVM
+
+Running this model also took a long time and the code chunk is therefore commented out.
+
+```{r}
+#water_svm_tune <- tune_grid(
+#  water_svm_workflow,
+#  resamples = water_folds,
+#  grid = water_svm_grid
+#)
+
+#save(water_svm_tune, file = "water_svm_tune.rda")
+```
+
+## Loading the models
+
+In this section we will be loading all the models that we saved in the above sections.
+
+```{r}
+load("water_logreg_tune.rda")
+load("water_lda_tune.rda")
+load("water_qda_tune.rda")
+
+load("water_en_tune.rda")
+
+load("water_rf_tune.rda")
+
+load("water_svm_tune.rda")
+```
+
+Now that the models have been ready, we are ready to test the models. In the next section, we will see how we pick the best model from the tuned model and assess the performances on the training set and the testing set.
+
+# Assessing models on Training Set
+
+## Logistic Regression, LDA, and QDA
+
+For the logistic regression we would like to make a confusion matrix on the training set.
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The confusion matrix shows the number of true positive classifications and true negative classifications. From this we can tell the logistic regression model did not perform very well."}
+augment(water_logreg_tune) %>%
+  conf_mat(truth = Potability, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+```
+There were 3 true classifications that were correctly classified and 1398 observations correctly falsely classified, we can tell that the model is doing better with the observations that are not potable and that might be because of the class imbalance. Below we will plot the area under the roc curve and see how it performed on the training set.
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The graph below shows that the logistic regression performed as well as any random chance would. This is not a good area under the roc curve since it closely follows the random chance line."}
+augment(water_logreg_tune) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+As we can see the area under the roc curve is close to 0.5 which means this is not a good model.
+
+I expect the LDA to perform similarly since it has similar restirictions. 
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The confusion matrix shows the number of true positive classifications and true negative classifications. From this we can tell the logistic regression model did not perform very well."}
+augment(water_lda_tune) %>%
+  conf_mat(truth = Potability, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+```
+There were 5 true classifications that were correctly classified and 1397 observations correctly negative classification, we can tell that the model is doing better with the observations that are not potable and that might be because of the class imbalance. Below we will plot the area under the roc curve and see how it performed on the training set. This model performed very similar to the logistic regression and means that it's area under the roc curve will be similar to the logistic regression, close to being the same as a random chance.
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The graph below shows that the LDA model performed as well as any random chance would. This is not a good area under the roc curve since it closely follows the random chance line."}
+augment(water_lda_tune) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+The area under the roc curve will be closer to 0.5 and this is not any better than the LDA. 
+
+However, I think QDA will perform better because it releases the restrictions of having the same covariance. The only thing it assumes as same means.
+
+```{r, fig.align='center', fig.show='hold', fig.cap="As we can see the QDA is performing a little beterr than the previous models. QDA tends to perform better with non linear data"}
+augment(water_qda_tune) %>%
+  conf_mat(truth=Potability, estimate =.pred_class) %>%
+  autoplot("heatmap")
+```
+
+There are around 309 true positive classification out of the `r 309+585` Potable observations, and the model has correctly identified 1237 of the not potable observations correctly out of the `r 1237+161`. The model does a better job at classifying the observations that are not Potable and this might be due to class imbalance.
+
+Let's see it's area under the roc curve, I expect it to be better than a random chance
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The area under the roc curve is doing a little better. Idealy we would want it to touch the upper left hand corner, making a right angle but this is still bettwe than a random chance."}
+augment(water_qda_tune) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+So far, the QDA model is the best for us. Next we will be seeing how the elastic net did after slecting the best tuned model.
+
+## Elastic net
+
+There are two hyperparameters to tune, and we select the best model using the select_best() command. But before we do that let's see what the best models look like. The select_best, choses the first model the show_best would give us, therefore, it is useful to see the top 5 models and how the hyperparameters differ for these
+
+```{r}
+show_best(water_en_tune, metric = "roc_auc") %>%
+  kable()
+```
+The best model has a penalty of 0.01 which was the least range we gave it and the mixture is around 0.8888889. This tells us it's some sort of a combination of lasso and ridge. Now we should save the best result and see how it performs on the training set.
+
+```{r}
+water_en_best <- select_best(water_en_tune, metric = "roc_auc")
+```
+
+Once we select the best models, we must finalize the workflow before we can fit it to the training or the testing set.
+
+```{r}
+water_en_final_wf <- finalize_workflow(water_en_workflow, water_en_best)
+
+water_en_final <- fit(water_en_final_wf,
+                      data = water_train)
+```
+
+Now we can look at the area under the roc curve:
+
+```{r, fig.align='center', fig.show='hold', fig.cap="This is slightly better than the logistic regression and LDA but still performs similar to a random chance. This is not a good model for us."}
+augment(water_en_final, new_data = water_train) %>%
+  roc_curve(Potability, .pred_1) %>%
+  autoplot()
+```
+
+Elastic Net is a regularized version of logistic regression that combines both L1 (Lasso) and L2 (Ridge) penalties. While this can help address issues of multicollinearity and variable selection, it still inherits the assumption of linearity between predictors and the log-odds of the response. In our case, the relationships between the features and water potability are likely to be non-linear and complex, which limits the effectiveness of Elastic Net. Consequently, we expect it to underperform compared to more flexible, non-parametric models such as Random Forests or Support Vector Machines, which can capture non-linear decision boundaries.
+
+## Random Forest
+
+In this model there are three hyperparameters to be tuned. We will show the best 5 models like we did in the elastic net and then use select_best() to choose the best model
+
+```{r}
+show_best(water_rf_tune, metric = "roc_auc") %>%
+  kable(caption = "The best 5 models after tuning the three hyperparameters")
+```
+
+The best model is when m is 7, number of trees is 657 and min_n is 20. Thus, we save the best and finalize the workflow and see how it does on the training set. Recall that so far our best model is QDA.
+
+```{r, fig.align='center', fig.show='hold', fig.cap="It looks like the random forest is overfitting since it is giving us almost a right angle. However, remember that this is on the training set, and it would be reduced when we test it with the testing data set. This is a very good model which is handling non linear relationships very well. This is now our best model."}
+water_rf_best <- select_best(water_rf_tune, metric = "roc_auc")
+
+water_rf_final_wf <- finalize_workflow(water_rf_workflow, water_rf_best)
+
+water_rf_final <- fit(water_rf_final_wf,
+                      data = water_train)
+
+augment(water_rf_final, new_data = water_train) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+Random Forest is an ensemble learning method that builds multiple decision trees and aggregates their predictions. It is known for its high flexibility and ability to capture complex, non-linear interactions in the data without requiring strong parametric assumptions. As a result, it often performs exceptionally well on training data.
+
+In our case, the Random Forest model achieved a perfect AUC score of 1.00 on the training set, which indicates it is classifying the training observations with complete separation between the two classes. While this might seem ideal at first glance, it also raises concerns about overfitting. A perfect score on the training set suggests the model has likely memorized the data, including noise or spurious patterns that do not generalize well to unseen data.
+
+Therefore, while Random Forest shows promise due to its performance on the training set, we must evaluate it carefully on the testing set or through cross-validation to confirm that it can generalize well and avoid overfitting.
+
+Also, we would like to see the variable importance chart to see which variable the model thought was most important. However, we should see it after fitting it to the testing dataset.
+
+## SVMs
+
+For SVM we have two hyperparameters to tune, note that this is done on a different recipe, a more simpler recipe, and we must be careful with how appropriate this model would be. 
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The autoplot shows how different scvm models perform with different combination of hyperparameters."}
+water_svm_tune %>% autoplot() + theme_bw()
+```
+
+```{r}
+show_best(water_svm_tune, metric = "roc_auc") %>%
+  kable(caption = "The best SVM models with different hyperparameters")
+```
+The best model seems to be when degree is 4 and cost is 1. We will now select the best and finalize the workflow
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The plot shows how the SVM is separating."}
+water_svm_best <- select_best(water_svm_tune, metric = "roc_auc")
+
+water_svm_best_fit <- finalize_workflow(water_svm_workflow, water_svm_best) %>%
+  fit(water_train)
+
+water_svm_best_fit %>%  
+  extract_fit_engine() %>% 
+  plot()
+```
+
+The plot is not very promising, let's see it with a familiar metric of area under the curve.
+
+```{r, fig.align='center', fig.show='hold', fig.cap="Although the area under the roc curve is not very promising, it is doing better than a random chance"}
+augment(water_svm_best_fit, new_data = water_train) %>%
+  roc_curve(truth=Potability, .pred_1) %>%
+  autoplot()
+```
+
+Now we want to fit it on the testing set. So far, I think the best model we have is the random forest and then the SVM. Some might argue that QDA did better than SVM but QDA cannot be tuned and the recipe for SVM was simple. With a better recipe and ranges, we could build a better SVM model. 
+
+# On the Testing Set
+
+On the testing, we are the fit the best one or two models. As we saw the results on the training set were acquired by the random forest. The next best model would be either SVM or QDA. Since SVM is a model that can be tuned and because there it was based on a much simpler recipe we can see that SVM has much more potential to be a powerful model. Thus, we will be fitting random forest and SVM. 
+
+## Random Forest
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The area under the roc curve on the testing set is a doing better than random chance."}
+# Predict on the test set
+water_rf_test_preds <- augment(water_rf_final, new_data = water_test)
+
+# Plot ROC curve
+water_rf_test_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+
+On the training set, the Random Forest model yielded a near-perfect ROC curve, showing that it was able to distinguish between potable and non-potable water almost perfectly. However, when applied to the test set, its performance decreased noticeably, with the ROC curve showing a clear drop.
+
+This drop is expected and healthy: since the model had not seen the test data during training, its slightly reduced performance reflects how well it generalizes to new data. Despite the decline, the model still performs significantly better than random chance, indicating it has learned meaningful patterns and is a viable predictive model for water potability.
+
+Now we will graph a variable importance plot to see which variables the trees found most important. 
+```{r, fig.align='center', fig.show='hold', fig.cap="The variable importance show that ph was a strong predictor of Potability. Close sencond was Sulfate. The least useful predictor was Organi_carbon."}
+water_rf_fit <- extract_fit_engine(water_rf_final)
+
+vip(water_rf_fit) + theme_bw()
+```
+
+Now we will report their testing error. Since we have been working with the area under the roc curve, that is the metric we will use to see how the random forest performed in on the testing set. 
+
+```{r}
+water_rf_test_preds %>%
+  roc_auc(truth = Potability, .pred_1) %>%
+  kable(caption = "Area under the roc curve for the random forest")
+```
+
+The area under the roc curve is almost 0.7. This is better than 0.5, which is the area under the roc curve for models that do as good as a random chance. 
+
+## SVM
+
+Now we will fit the SVM on the testing set. I don't expect it to do better than the random forest but it's important to remember that this is a very simple model with a lot more potential to grow.
+
+```{r, fig.align='center', fig.show='hold', fig.cap="The model is performing a little better than random chance."}
+water_svm_test_preds <- augment(water_svm_best_fit, new_data = water_test)
+
+# Plot ROC curve
+water_svm_test_preds %>%
+  roc_curve(truth = Potability, .pred_1) %>%
+  autoplot()
+```
+
+The curve shows decent separation ability between the two classes, although it doesn’t quite match the performance of the random forest. However, unlike random forest, SVM is more robust to overfitting, particularly with proper regularization. Since our recipe for the SVM model was simpler and more generalizable, we expect it to perform better on unseen data compared to the overfit random forest.
+
+However, for this particular problem, the recipe for random forest was better. However, we would use both models to report the testing error. We will use the similar area under the roc curve metric. 
+
+```{r}
+water_svm_test_preds %>%
+  roc_auc(truth = Potability, .pred_1) %>%
+  kable(caption = "Area under the roc curve for the SVM model")
+```
+
+The area under the roc curve is nearly 0.6, a little less than the random forest but it is more than any random chance. While it did not reach the high area under the roc curve, the model maintained solid generalization performance. This confirms our earlier assumption that SVM’s simpler recipe and strong regularization make it a more reliable and interpretable model when faced with new, unseen data. 
+
+If we made the same model with a model complicated recipe including all predictors, we would increase the area under the roc curve. hile its predictive power is somewhat lower than the random forest on training data, it compensates by not losing as much performance on the testing set. This makes it a strong candidate for real-world application where generalization matters more than overfitting to training patterns.
+
+# Conclusion
+
+Access to clean and safe drinking water is a fundamental human right, yet millions around the world still lack it. The goal of this project was to leverage machine learning techniques to predict water potability using physicochemical attributes of water samples. Our objective was not only to build accurate models but also to understand how different algorithms interpret and use the underlying features of water data to make predictions. By exploring multiple modeling approaches, we aimed to identify both strengths and limitations of each method in predicting whether a given sample of water is potable or not.
+
+Our process began with careful data preprocessing. Missing data was addressed using K-nearest neighbors (KNN) imputation—a widely used method that replaces missing values based on similarity to other observations. After cleaning and preparing the data, we split it into training and testing sets, created recipes, and used 5 fold cross validation. 
+
+The classification models implemented in this study included logistic regression, linear and quadratic discriminant analysis (LDA and QDA), elastic net, random forest, and support vector machines (SVM). This diversity of models allowed for a holistic analysis and a meaningful comparison between linear, regularized, tree-based, and margin-based classifiers.
+
+During the training phase, the random forest emerged as the best-performing model. It achieved an almost perfect ROC curve and very high accuracy, thanks to its ability to capture complex nonlinear relationships and interactions among predictors. The performs of this model decreased during the testing set. While this decrease was expected, it highlighted a key tradeoff between fitting power and generalizability.
+
+In contrast, simpler models such as logistic regression and elastic net performed consistently but were limited by their linear assumptions. Elastic net in particular did not fare well due to the lack of clear linear separation in the data—something we suspected early on during exploratory data analysis.
+
+Interestingly, the support vector machine offered a compelling balance. The ROC curve and overall accuracy indicated that it had not overfit to the training data. Given the relatively simple preprocessing recipe and the ability to tune the cost parameter, the SVM model showed significant potential. It demonstrated that a margin-based method can handle this type of structured, tabular data well when properly tuned. A more complicated SVM model would be better in predicting the potability of water. 
+
+Another valuable insight came from variable importance analysis. Features such as ph level, sulfate, and hardness  emerged as some of the most influential variables across models. This provides useful information from a domain perspective—indicating which aspects of water quality have the most impact on potability. Knowing which variables play a key role in determining potability can inform water testing protocols, especially in low-resource environments where testing all variables may not be feasible.
+
+Looking forward, several extensions are possible. A larger and more balanced dataset could help all models perform better, particularly those like QDA that are sensitive to class imbalance and covariance estimation. Additionally, incorporating external environmental data (e.g., source of water, surrounding land use, climate variables) could improve the robustness and relevance of our models. A more complicated SVM model would perform better than the SVM we incorporated. 
+
+In conclusion, this project not only demonstrated the power of machine learning in tackling real-world classification problems but also emphasized the importance of thoughtful model selection, validation, and interpretation. In the pursuit of ensuring safe drinking water through data, these tools serve as a step forward in blending environmental science with computational intelligence.
+
+# References.
+
+1. [Radhakrishnan, Neha, and Anju S. Pillai. "Comparison of water quality classification models using machine learning." 2020 5th international conference on communication and electronics systems (ICCES). IEEE, 2020.](https://ieeexplore.ieee.org/abstract/document/9137903/) 
+
+2. [Kaggle Water Potability Dataset](https://www.kaggle.com/datasets/adityakadiwal/water-potability)
